@@ -1,0 +1,203 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+interface BaseResponse {
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+type BooleanMutation implements BaseResponse {
+  data: Boolean!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+type Category {
+  id: Int!
+  name: String!
+}
+
+type CategoryList implements BaseResponse {
+  data: [Category!]!
+  message: [String!]!
+  pagination: PaginationData!
+  statusCode: HttpCode!
+}
+
+type CategoryMutation implements BaseResponse {
+  data: Category!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+input CreateCategoryInput {
+  name: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DeleteCategoryInput {
+  id: Int!
+}
+
+type ErrorOutput implements BaseResponse {
+  errors: JSON!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+enum HttpCode {
+  ACCEPTED
+  ALREADY_REPORTED
+  AMBIGUOUS
+  BAD_GATEWAY
+  BAD_REQUEST
+  CONFLICT
+  CONTENT_DIFFERENT
+  CONTINUE
+  CREATED
+  EARLYHINTS
+  EXPECTATION_FAILED
+  FAILED_DEPENDENCY
+  FORBIDDEN
+  FOUND
+  GATEWAY_TIMEOUT
+  GONE
+  HTTP_VERSION_NOT_SUPPORTED
+  INSUFFICIENT_STORAGE
+  INTERNAL_SERVER_ERROR
+  I_AM_A_TEAPOT
+  LENGTH_REQUIRED
+  LOCKED
+  LOOP_DETECTED
+  METHOD_NOT_ALLOWED
+  MISDIRECTED
+  MOVED_PERMANENTLY
+  MULTI_STATUS
+  NON_AUTHORITATIVE_INFORMATION
+  NOT_ACCEPTABLE
+  NOT_FOUND
+  NOT_IMPLEMENTED
+  NOT_MODIFIED
+  NO_CONTENT
+  OK
+  PARTIAL_CONTENT
+  PAYLOAD_TOO_LARGE
+  PAYMENT_REQUIRED
+  PERMANENT_REDIRECT
+  PRECONDITION_FAILED
+  PRECONDITION_REQUIRED
+  PROCESSING
+  PROXY_AUTHENTICATION_REQUIRED
+  REQUESTED_RANGE_NOT_SATISFIABLE
+  REQUEST_TIMEOUT
+  RESET_CONTENT
+  SEE_OTHER
+  SERVICE_UNAVAILABLE
+  SWITCHING_PROTOCOLS
+  TEMPORARY_REDIRECT
+  TOO_MANY_REQUESTS
+  UNAUTHORIZED
+  UNPROCESSABLE_ENTITY
+  UNRECOVERABLE_ERROR
+  UNSUPPORTED_MEDIA_TYPE
+  URI_TOO_LONG
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Login {
+  token: String!
+  user: User!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginMutation implements BaseResponse {
+  data: Login!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+type Mutation {
+  createCategory(input: CreateCategoryInput!): ResultUnionCategoryMutation!
+  deleteCategory(input: DeleteCategoryInput!): ResultUnionBooleanMutation!
+  login(input: LoginInput!): ResultUnionLoginMutation!
+  signup(input: SignupInput!): ResultUnionSignupMutation!
+  updateCategory(input: UpdateCategoryInput!): ResultUnionCategoryMutation!
+}
+
+type PaginationData {
+  cursorLeft: Float
+  cursorRight: Float
+  page: Float!
+  pageSize: Float!
+  total: Float!
+}
+
+input PaginationInput {
+  page: Int! = 1
+  pageSize: Int! = 10
+}
+
+type Query {
+  categories(pagination: PaginationInput): ResultUnionCategoryList!
+  me: ResultUnionUserSingle!
+}
+
+union ResultUnionBooleanMutation = BooleanMutation | ErrorOutput
+
+union ResultUnionCategoryList = CategoryList | ErrorOutput
+
+union ResultUnionCategoryMutation = CategoryMutation | ErrorOutput
+
+union ResultUnionLoginMutation = ErrorOutput | LoginMutation
+
+union ResultUnionSignupMutation = ErrorOutput | SignupMutation
+
+union ResultUnionUserSingle = ErrorOutput | UserSingle
+
+type Signup {
+  success: Boolean!
+}
+
+input SignupInput {
+  email: String!
+  name: String
+  password: String!
+}
+
+type SignupMutation implements BaseResponse {
+  data: Signup!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+input UpdateCategoryInput {
+  id: Int!
+  name: String!
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  id: Int!
+  name: String
+  updatedAt: DateTime!
+}
+
+type UserSingle implements BaseResponse {
+  data: User!
+  message: [String!]!
+  statusCode: HttpCode!
+}

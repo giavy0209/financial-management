@@ -19,6 +19,16 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, name], name: "unique_category_name")
 }

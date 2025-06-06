@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from 'generated/prisma';
 
@@ -110,6 +111,7 @@ export class BasePrismaService extends PrismaClient implements OnModuleInit {
     } = {},
   ) {
     const context = Prisma.getExtensionContext(this) as any;
+
     const data = await context.findFirst({ where, select: { id: 1 } });
     if (throwCase) {
       switch (throwCase) {
@@ -154,10 +156,10 @@ export class BasePrismaService extends PrismaClient implements OnModuleInit {
     return this.$extends({
       model: {
         $allModels: {
-          findAndPagination: this.findAndPagination.bind(this),
-          exists: this.exists.bind(this),
-          findFirstOrThrow: this.findFirstOrThrow.bind(this),
-          findFirstAndUpdate: this.findFirstAndUpdate.bind(this),
+          findAndPagination: this.findAndPagination,
+          exists: this.exists,
+          findFirstOrThrow: this.findFirstOrThrow,
+          findFirstAndUpdate: this.findFirstAndUpdate,
         },
       },
     });

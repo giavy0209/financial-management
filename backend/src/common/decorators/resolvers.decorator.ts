@@ -4,10 +4,10 @@ import {
   ObjectType,
   Query,
   type QueryOptions,
-  Mutation as BaseMutation,
   InterfaceType,
   ObjectTypeOptions,
   Union,
+  Mutation,
 } from '@nestjs/graphql';
 import { applyDecorators, HttpStatus, SetMetadata } from '@nestjs/common';
 import { IS_GET_LIST } from './metadata.decorator';
@@ -39,8 +39,8 @@ const getDataTypeName = (
 };
 @InterfaceType()
 export abstract class BaseResponse {
-  @Field(() => String)
-  message: string;
+  @Field(() => [String])
+  message: string[];
 
   @Field(() => HttpStatus, { defaultValue: HttpStatus.OK })
   statusCode: HttpStatus;
@@ -130,7 +130,7 @@ export const QuerySingle = (
   }
 };
 
-export const Mutation = (
+export const AppMutation = (
   dataType: { new (...args: any[]): any } | [{ new (...args: any[]): any }],
   options?: QueryOptions,
 ) => {
@@ -144,7 +144,7 @@ export const Mutation = (
   Object.defineProperty(Type, 'name', { value: typeName });
   const unionName = `ResultUnion${typeName}`;
   if (hash[unionName]) {
-    return BaseMutation(() => hash[unionName], options);
+    return Mutation(() => hash[unionName], options);
   } else {
     const ResultUnion = createUnionType({
       name: unionName,
@@ -155,6 +155,6 @@ export const Mutation = (
       },
     });
     hash[unionName] = ResultUnion;
-    return BaseMutation(() => ResultUnion, options);
+    return Mutation(() => ResultUnion, options);
   }
 };

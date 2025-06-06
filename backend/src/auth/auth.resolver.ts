@@ -1,28 +1,49 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { Resolver, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { AuthResponse, LoginInput, SignupInput, User } from './auth.types';
-import { JwtAuthGuard } from './jwt.guard';
-import { CurrentUser } from './current-user.decorator';
-import { QuerySingle } from 'src/common/decorators/resolvers.decorator';
+import { Login, Signup, User } from './auth.types';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import {
+  AppMutation,
+  QuerySingle,
+} from 'src/common/decorators/resolvers.decorator';
+import { SignupInput } from './input/signup.input';
+import { LoginInput } from './input/login.input';
+import { IsPublic } from 'src/common/decorators/metadata.decorator';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Mutation(() => AuthResponse)
+  @AppMutation(Signup)
+  @IsPublic()
   async signup(@Args('input') input: SignupInput) {
-    return this.authService.signup(input.email, input.password, input.name);
+    const data = await this.authService.signup(
+      input.email,
+      input.password,
+      input.name,
+    );
+    return {
+      data,
+      message: 'User created successfully',
+    };
   }
 
-  @Mutation(() => AuthResponse)
+  @AppMutation(Login)
+  @IsPublic()
   async login(@Args('input') input: LoginInput) {
-    return this.authService.login(input.email, input.password);
+    const data = await this.authService.login(input.email, input.password);
+    return {
+      data,
+      message: 'Login successfully',
+    };
   }
 
   @QuerySingle(User)
-  @UseGuards(JwtAuthGuard)
-  async me(@CurrentUser() user: { userId: number }) {
-    return this.authService.getCurrentUser(user.userId);
+  async me(@CurrentUser() user: JwtPayload['user']) {
+    const data = await this.authService.getCurrentUser(user.id);
+    return {
+      data,
+      message: 'User fetched successfully',
+    };
   }
 }

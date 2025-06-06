@@ -1,6 +1,5 @@
-import { Catch, HttpException, HttpStatus, type ArgumentsHost } from '@nestjs/common';
-import { GqlArgumentsHost, GqlExceptionFilter } from '@nestjs/graphql';
-import { Request, Response } from 'express';
+import { Catch, HttpException, type ArgumentsHost } from '@nestjs/common';
+import { GqlExceptionFilter } from '@nestjs/graphql';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements GqlExceptionFilter {
@@ -9,40 +8,22 @@ export class HttpExceptionFilter implements GqlExceptionFilter {
 
     // GraphQL Context
     if (type === 'graphql') {
-      const gqlHost = GqlArgumentsHost.create(host);
-      const gqlContext = gqlHost.getContext();
-
       const response = exception.getResponse() as any;
-      const message = response.message;
-      const errors: any = response.errors || [message]; //ensure errors is always an array.
+      const message = Array.isArray(response.message)
+        ? response.message
+        : [response.message];
+
+      const errors = response.errors
+        ? Array.isArray(response.errors)
+          ? response.errors
+          : [response.errors]
+        : message;
 
       return {
-        message: message,
-        errors: [
-          {
-            message: message,
-            extensions: {
-              code: exception.getStatus() || 500,
-              errors: errors,
-            },
-          },
-        ],
+        message,
+        errors,
+        statusCode: exception.getStatus(),
       };
     }
-
-    // Default HTTP Context
-    const ctx = host.switchToHttp();
-    const req = ctx.getRequest<Request>();
-    const res = ctx.getResponse<Response>();
-
-    const statusCode = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
-    const response = exception.getResponse() as any;
-    const message = response.message;
-    const errors: any = response.errors || [];
-
-    res.status(statusCode).json({
-      message,
-      errors: errors || message,
-    });
   }
 }
