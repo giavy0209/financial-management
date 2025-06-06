@@ -16,6 +16,7 @@ type BooleanMutation implements BaseResponse {
 type Category {
   id: Int!
   name: String!
+  transactions: [Transaction!]!
 }
 
 type CategoryList implements BaseResponse {
@@ -35,6 +36,12 @@ input CreateCategoryInput {
   name: String!
 }
 
+input CreateTransactionInput {
+  amount: Float!
+  categoryId: Int!
+  description: String
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -48,6 +55,14 @@ type ErrorOutput implements BaseResponse {
   errors: JSON!
   message: [String!]!
   statusCode: HttpCode!
+}
+
+input GetTransactionInput {
+  categoryId: Int
+  fromAmount: Float
+  fromDate: DateTime
+  toAmount: Float
+  toDate: DateTime
 }
 
 enum HttpCode {
@@ -131,10 +146,12 @@ type LoginMutation implements BaseResponse {
 
 type Mutation {
   createCategory(input: CreateCategoryInput!): ResultUnionCategoryMutation!
+  createTransaction(input: CreateTransactionInput!): ResultUnionTransactionMutation!
   deleteCategory(input: DeleteCategoryInput!): ResultUnionBooleanMutation!
   login(input: LoginInput!): ResultUnionLoginMutation!
   signup(input: SignupInput!): ResultUnionSignupMutation!
   updateCategory(input: UpdateCategoryInput!): ResultUnionCategoryMutation!
+  updateTransaction(input: UpdateTransactionInput!): ResultUnionTransactionMutation!
 }
 
 type PaginationData {
@@ -153,6 +170,7 @@ input PaginationInput {
 type Query {
   categories(pagination: PaginationInput): ResultUnionCategoryList!
   me: ResultUnionUserSingle!
+  transactions(filter: GetTransactionInput, pagination: PaginationInput): ResultUnionTransactionList!
 }
 
 union ResultUnionBooleanMutation = BooleanMutation | ErrorOutput
@@ -164,6 +182,10 @@ union ResultUnionCategoryMutation = CategoryMutation | ErrorOutput
 union ResultUnionLoginMutation = ErrorOutput | LoginMutation
 
 union ResultUnionSignupMutation = ErrorOutput | SignupMutation
+
+union ResultUnionTransactionList = ErrorOutput | TransactionList
+
+union ResultUnionTransactionMutation = ErrorOutput | TransactionMutation
 
 union ResultUnionUserSingle = ErrorOutput | UserSingle
 
@@ -183,12 +205,41 @@ type SignupMutation implements BaseResponse {
   statusCode: HttpCode!
 }
 
+type Transaction {
+  amount: Float!
+  category: Category!
+  createdAt: DateTime!
+  description: String
+  id: Int!
+}
+
+type TransactionList implements BaseResponse {
+  data: [Transaction!]!
+  message: [String!]!
+  pagination: PaginationData!
+  statusCode: HttpCode!
+}
+
+type TransactionMutation implements BaseResponse {
+  data: Transaction!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
 input UpdateCategoryInput {
   id: Int!
   name: String!
 }
 
+input UpdateTransactionInput {
+  amount: Float
+  categoryId: Int
+  description: String
+  id: Int!
+}
+
 type User {
+  categories: [Category!]!
   createdAt: DateTime!
   email: String!
   id: Int!

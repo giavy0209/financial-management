@@ -8,29 +8,29 @@ import { createTransaction, getTransactions } from "@/store/features/transaction
 import TransactionTable from "./components/TransactionTable"
 import { useState } from "react"
 import Modal from "@/app/components/Modal"
+import CategorySelect from "./components/CategorySelect"
+import TransactionFilters from "./components/TransactionFilters"
 
 export default function TransactionsPage() {
+  console.log("render TransactionsPage")
+
   const dispatch = useDispatch<AppDispatch>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newTransaction, setNewTransaction] = useState({
-    name: "",
+    description: "",
     amount: 0,
-    date: new Date().toISOString().split("T")[0],
+    categoryId: 0,
   })
 
   const handleCreateTransaction = async () => {
-    try {
-      await dispatch(createTransaction(newTransaction)).unwrap()
-      setIsModalOpen(false)
-      setNewTransaction({
-        name: "",
-        amount: 0,
-        date: new Date().toISOString().split("T")[0],
-      })
-      dispatch(getTransactions({ page: 1, pageSize: 10 }))
-    } catch (error: unknown) {
-      console.error("Failed to create transaction:", error)
-    }
+    await dispatch(createTransaction(newTransaction)).unwrap()
+    setIsModalOpen(false)
+    setNewTransaction({
+      description: "",
+      amount: 0,
+      categoryId: 0,
+    })
+    dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
   }
 
   return (
@@ -40,7 +40,8 @@ export default function TransactionsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
           <p className="mt-2 text-sm text-gray-700">A list of all transactions in your account.</p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none space-x-4 flex items-center">
+          <TransactionFilters />
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
@@ -58,18 +59,6 @@ export default function TransactionsPage() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Transaction">
         <div className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={newTransaction.name}
-              onChange={(e) => setNewTransaction({ ...newTransaction, name: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
               Amount
             </label>
@@ -81,15 +70,22 @@ export default function TransactionsPage() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
+
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-              Date
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+              Category
             </label>
-            <input
-              type="date"
-              id="date"
-              value={newTransaction.date}
-              onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+            <CategorySelect value={newTransaction.categoryId} onChange={(categoryId) => setNewTransaction({ ...newTransaction, categoryId })} />
+          </div>
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              Description (Optional)
+            </label>
+            <textarea
+              id="description"
+              value={newTransaction.description}
+              onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+              rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>

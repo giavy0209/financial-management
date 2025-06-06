@@ -2,54 +2,54 @@
 
 "use client"
 
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "@/store/store"
-import { getTransactions, updateTransaction, deleteTransaction, setPage, setPageSize, startEditing, cancelEditing } from "@/store/features/transaction/transactionSlice"
+import { getTransactions, updateTransaction, setPage, setPageSize, startEditing, cancelEditing } from "@/store/features/transaction/transactionSlice"
 import Table, { Column } from "@/app/components/Table"
-import { Transaction } from "@/graphql/types"
+import { TransactionFieldsFragment } from "@/graphql/queries"
+import CategorySelect from "./CategorySelect"
 
 const PAGE_SIZES = [10, 20, 50]
 
-export default function TransactionTable() {
+const TransactionTable = memo(() => {
   const dispatch = useDispatch<AppDispatch>()
   const {
     transactions,
     pagination: { page, pageSize, total },
     loading,
     editingTransaction,
+    filters,
   } = useSelector((state: RootState) => state.transaction)
 
   useEffect(() => {
-    dispatch(getTransactions({ page, pageSize }))
-  }, [dispatch, page, pageSize])
+    dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
+  }, [dispatch, page, pageSize, filters])
 
-  const handleEdit = (id: number, name: string, amount: number, date: string) => {
-    dispatch(startEditing({ id, name, amount, date }))
+  const handleEdit = (id: number, description: string | null = "", amount: number, categoryId: number) => {
+    dispatch(startEditing({ id, description, amount, categoryId }))
   }
 
   const handleSave = async (id: number) => {
     try {
-      await dispatch(updateTransaction({ id, name: editingTransaction.name, amount: editingTransaction.amount, date: editingTransaction.date })).unwrap()
-      dispatch(getTransactions({ page, pageSize }))
+      await dispatch(
+        updateTransaction({
+          id,
+          description: editingTransaction.description,
+          amount: editingTransaction.amount,
+          categoryId: editingTransaction.categoryId,
+        })
+      ).unwrap()
+      dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
     } catch (error: unknown) {
       console.error("Failed to update transaction:", error)
-    }
-  }
-
-  const handleDelete = async (id: number) => {
-    try {
-      await dispatch(deleteTransaction({ id })).unwrap()
-      dispatch(getTransactions({ page, pageSize }))
-    } catch (error: unknown) {
-      console.error("Failed to delete transaction:", error)
     }
   }
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "VND",
     }).format(amount)
   }
 
@@ -61,20 +61,20 @@ export default function TransactionTable() {
     })
   }
 
-  const columns: Column<Transaction>[] = [
+  const columns: Column<TransactionFieldsFragment>[] = [
     {
-      header: "Name",
-      key: "name",
+      header: "Description",
+      key: "description",
       render: (transaction) =>
         editingTransaction.id === transaction.id ? (
           <input
             type="text"
-            value={editingTransaction.name}
-            onChange={(e) => dispatch(startEditing({ ...editingTransaction, name: e.target.value }))}
+            value={editingTransaction.description}
+            onChange={(e) => dispatch(startEditing({ ...editingTransaction, description: e.target.value }))}
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         ) : (
-          <div className="text-sm text-gray-900">{transaction.name}</div>
+          <div className="text-sm text-gray-900">{transaction.description}</div>
         ),
     },
     {
@@ -94,19 +94,21 @@ export default function TransactionTable() {
         ),
     },
     {
-      header: "Date",
-      key: "date",
+      header: "Category",
+      key: "category",
       render: (transaction) =>
         editingTransaction.id === transaction.id ? (
-          <input
-            type="date"
-            value={editingTransaction.date}
-            onChange={(e) => dispatch(startEditing({ ...editingTransaction, date: e.target.value }))}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
+          <div className="w-48">
+            <CategorySelect value={editingTransaction.categoryId} onChange={(categoryId) => dispatch(startEditing({ ...editingTransaction, categoryId }))} />
+          </div>
         ) : (
-          <div className="text-sm text-gray-900">{formatDate(transaction.date)}</div>
+          <div className="text-sm text-gray-900">{transaction.category.name}</div>
         ),
+    },
+    {
+      header: "Created At",
+      key: "createdAt",
+      render: (transaction) => <div className="text-sm text-gray-900">{formatDate(transaction.createdAt)}</div>,
     },
     {
       header: "Actions",
@@ -118,17 +120,17 @@ export default function TransactionTable() {
             <button onClick={() => handleSave(transaction.id)} className="text-indigo-600 hover:text-indigo-900">
               Save
             </button>
-            <button onClick={() => dispatch(cancelEditing())} className="text-gray-600 hover:text-gray-900">
+            <button onClick={() => dispatch(cancelEditing())} className="ml-2 text-gray-600 hover:text-gray-900">
               Cancel
             </button>
           </>
         ) : (
           <>
-            <button onClick={() => handleEdit(transaction.id, transaction.name, transaction.amount, transaction.date)} className="text-indigo-600 hover:text-indigo-900">
+            <button
+              onClick={() => handleEdit(transaction.id, transaction.description, transaction.amount, transaction.category.id)}
+              className="text-indigo-600 hover:text-indigo-900"
+            >
               Edit
-            </button>
-            <button onClick={() => handleDelete(transaction.id)} className="text-red-600 hover:text-red-900">
-              Delete
             </button>
           </>
         ),
@@ -136,18 +138,24 @@ export default function TransactionTable() {
   ]
 
   return (
-    <Table<Transaction>
-      columns={columns}
-      data={transactions}
-      loading={loading}
-      pagination={{
-        page,
-        pageSize,
-        total,
-        onPageChange: (newPage) => dispatch(setPage(newPage)),
-        onPageSizeChange: (newPageSize) => dispatch(setPageSize(newPageSize)),
-        pageSizeOptions: PAGE_SIZES,
-      }}
-    />
+    <div>
+      <Table<TransactionFieldsFragment>
+        columns={columns}
+        data={transactions}
+        loading={loading}
+        pagination={{
+          page,
+          pageSize,
+          total,
+          onPageChange: (newPage) => dispatch(setPage(newPage)),
+          onPageSizeChange: (newPageSize) => dispatch(setPageSize(newPageSize)),
+          pageSizeOptions: PAGE_SIZES,
+        }}
+      />
+    </div>
   )
-}
+})
+
+TransactionTable.displayName = "TransactionTable"
+
+export default TransactionTable

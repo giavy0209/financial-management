@@ -15,20 +15,39 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
   password  String
   name      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  Category  Category[]
+
+  @@map("users")
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String
-  userId    Int
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          Int           @id @default(autoincrement())
+  name        String
+  userId      Int           @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  Transaction Transaction[]
 
-  @@unique([userId, name], name: "unique_category_name")
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  description String?
+  categoryId  Int      @map("category_id")
+  userId      Int      @map("user_id")
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("transactions")
 }

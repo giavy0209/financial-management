@@ -9,12 +9,13 @@ import {
   CreateCategoryMutationVariables,
   DeleteCategoryMutation,
   DeleteCategoryMutationVariables,
-  GetCategoriesQuery,
-  GetCategoriesQueryVariables,
   UpdateCategoryMutation,
   UpdateCategoryMutationVariables,
+  GetCategoriesQuery,
+  GetCategoriesQueryVariables,
+  CategoryFieldsFragment,
 } from "@/graphql/queries"
-import { Category, CreateCategoryInput, DeleteCategoryInput, PaginationInput, UpdateCategoryInput } from "@/graphql/types"
+import { CreateCategoryInput, DeleteCategoryInput, PaginationInput, UpdateCategoryInput } from "@/graphql/types"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
 const CATEGORY_FRAGMENT = gql`
@@ -27,19 +28,19 @@ const CATEGORY_FRAGMENT = gql`
 const GET_CATEGORIES = gql`
   ${CATEGORY_FRAGMENT}
   ${ERROR_FRAGMENT}
-  query GetCategories($pagination: PaginationInput!) {
+  query GetCategories($pagination: PaginationInput) {
     categories(pagination: $pagination) {
       ... on CategoryList {
-        message
-        statusCode
         data {
           ...CategoryFields
         }
+        message
         pagination {
           page
           pageSize
           total
         }
+        statusCode
       }
       ... on ErrorOutput {
         ...ErrorFields
@@ -103,7 +104,7 @@ const DELETE_CATEGORY = gql`
 `
 
 interface CategoryState {
-  categories: Category[]
+  categories: CategoryFieldsFragment[]
   pagination: {
     page: number
     pageSize: number
@@ -241,7 +242,6 @@ const categorySlice = createSlice({
         if (action.payload.__typename === "CategoryList") {
           state.categories = action.payload.data
           state.pagination.total = action.payload.pagination.total
-          handleGraphQLMessage(action.payload)
         }
         state.loading = false
       })

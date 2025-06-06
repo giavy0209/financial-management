@@ -12,6 +12,7 @@ import { PaginationMapInterceptor } from './common/interceptors/response.interce
 import { JwtAuthGuard } from './common/guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
 import { CategoryModule } from './category/category.module';
+import { TransactionModule } from './transaction/transaction.module';
 registerEnumType(HttpStatus, { name: 'HttpCode' });
 @Module({
   imports: [
@@ -27,6 +28,7 @@ registerEnumType(HttpStatus, { name: 'HttpCode' });
     AuthModule,
     PrismaModule,
     CategoryModule,
+    TransactionModule,
   ],
   providers: [
     JwtService,

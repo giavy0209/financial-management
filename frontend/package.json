@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "@parcel/watcher": "^2.5.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/js-cookie": "^3.0.6",
