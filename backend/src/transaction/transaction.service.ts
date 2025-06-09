@@ -3,9 +3,9 @@ import { InjectDatabase } from 'src/common/decorators/inject-database.decorator'
 import { GetTransactionInput } from './input/get-transaction.input';
 import { CreateTransactionInput } from './input/create-transaction.input';
 import { UpdateTransactionInput } from './input/update-transaction.input';
-import { Prisma } from 'generated/prisma';
 import { generateQueryRange } from 'src/common/helpers/generate-where-range';
 import { FieldMap } from 'src/common/decorators/field-map.decorator';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TransactionService {

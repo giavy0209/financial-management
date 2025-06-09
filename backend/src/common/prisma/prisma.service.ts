@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
-import { Prisma, PrismaClient } from 'generated/prisma';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class BasePrismaService extends PrismaClient implements OnModuleInit {
