@@ -14,27 +14,12 @@ export class PaginationInput {
 
 export const PaginationTest = createParamDecorator(
   async (_: unknown, context: ExecutionContext) => {
-    console.log('dmm');
-
-    const ctx = GqlExecutionContext.create(context);
-    const { page, pageSize } = (ctx.getArgs().pagination ||
-      {}) as PaginationInput;
-
-    let skip = 0;
-    const take = pageSize || Number.MAX_SAFE_INTEGER;
-    if (page && pageSize) {
-      skip = (page - 1) * pageSize;
-    }
-    console.log({ skip, take }, 1);
-    return { skip: 0, take: 10 };
     // return { skip, take };
   },
 );
 
 export const Pagination = createParamDecorator(
   async (_: unknown, context: ExecutionContext) => {
-    console.log('dmm');
-
     const ctx = GqlExecutionContext.create(context);
     const { page, pageSize } = (ctx.getArgs().pagination ||
       {}) as PaginationInput;
@@ -44,9 +29,7 @@ export const Pagination = createParamDecorator(
     if (page && pageSize) {
       skip = (page - 1) * pageSize;
     }
-    console.log({ skip, take }, 1);
-    return { skip: 0, take: 10 };
-    // return { skip, take };
+    return { skip, take };
   },
   [
     Args({ name: 'pagination', type: () => PaginationInput, nullable: true }),
