@@ -5,7 +5,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { InjectDatabase } from 'src/common/decorators/inject-database.decorator';
 @Injectable()
 export class AuthService {
