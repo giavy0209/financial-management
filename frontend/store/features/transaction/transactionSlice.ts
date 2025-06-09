@@ -3,89 +3,85 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
-import { ERROR_FRAGMENT } from "@/graphql/fragments"
-import { CreateTransactionInput, GetTransactionInput, UpdateTransactionInput } from "@/graphql/types"
+import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
+import { CreateTransactionInput, GetTransactionInput } from "@/graphql/types"
+import { CreateTransactionMutation, CreateTransactionMutationVariables, TransactionFieldsFragment } from "@/graphql/queries"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
-import {
-  GetTransactionsQuery,
-  GetTransactionsQueryVariables,
-  CreateTransactionMutation,
-  CreateTransactionMutationVariables,
-  UpdateTransactionMutation,
-  UpdateTransactionMutationVariables,
-  TransactionFieldsFragment,
-} from "@/graphql/queries"
 
-const TRANSACTION_FRAGMENT = gql`
+// GraphQL Fragments
+export const TRANSACTION_FIELDS = gql`
   fragment TransactionFields on Transaction {
+    id
+    description
     amount
     category {
       id
       name
     }
-    description
-    id
+    moneySource {
+      id
+      name
+    }
     createdAt
   }
 `
 
 const GET_TRANSACTIONS = gql`
-  ${TRANSACTION_FRAGMENT}
+  ${TRANSACTION_FIELDS}
   ${ERROR_FRAGMENT}
+  ${PAGINATION_FRAGMENT}
   query GetTransactions($filter: GetTransactionInput!, $pagination: PaginationInput) {
     transactions(filter: $filter, pagination: $pagination) {
-      ... on ErrorOutput {
-        ...ErrorFields
-      }
       ... on TransactionList {
+        message
+        statusCode
         data {
           ...TransactionFields
         }
-        message
         pagination {
-          page
-          pageSize
-          total
+          ...PaginationFields
         }
-        statusCode
+      }
+      ... on ErrorOutput {
+        ...ErrorFields
       }
     }
   }
 `
 
 const CREATE_TRANSACTION = gql`
-  ${TRANSACTION_FRAGMENT}
+  ${TRANSACTION_FIELDS}
   ${ERROR_FRAGMENT}
   mutation CreateTransaction($input: CreateTransactionInput!) {
     createTransaction(input: $input) {
-      ... on ErrorOutput {
-        ...ErrorFields
-      }
       ... on TransactionMutation {
+        message
+        statusCode
         data {
           ...TransactionFields
         }
-        message
-        statusCode
+      }
+      ... on ErrorOutput {
+        ...ErrorFields
       }
     }
   }
 `
 
 const UPDATE_TRANSACTION = gql`
-  ${TRANSACTION_FRAGMENT}
+  ${TRANSACTION_FIELDS}
   ${ERROR_FRAGMENT}
   mutation UpdateTransaction($input: UpdateTransactionInput!) {
     updateTransaction(input: $input) {
-      ... on ErrorOutput {
-        ...ErrorFields
-      }
       ... on TransactionMutation {
+        message
+        statusCode
         data {
           ...TransactionFields
         }
-        message
-        statusCode
+      }
+      ... on ErrorOutput {
+        ...ErrorFields
       }
     }
   }
@@ -104,6 +100,7 @@ interface TransactionState {
     description: string
     amount: number
     categoryId: number
+    moneySourceId: number
   }
   filters: GetTransactionInput
 }
@@ -121,69 +118,44 @@ const initialState: TransactionState = {
     description: "",
     amount: 0,
     categoryId: 0,
+    moneySourceId: 0,
   },
   filters: {},
 }
 
-// Async Thunks
-export const getTransactions = createAsyncThunk<GetTransactionsQuery["transactions"], GetTransactionsQueryVariables>(
+export const getTransactions = createAsyncThunk(
   "transaction/getTransactions",
-  async (input, { rejectWithValue, fulfillWithValue }) => {
-    try {
-      const { data } = await client.query<GetTransactionsQuery, GetTransactionsQueryVariables>({
-        query: GET_TRANSACTIONS,
-        variables: input,
-      })
-
-      if (data.transactions.__typename === "TransactionList") {
-        return fulfillWithValue(data.transactions)
-      }
-      return rejectWithValue(data.transactions)
-    } catch (error) {
-      return rejectWithValue(error)
-    }
+  async ({ filter, pagination }: { filter: GetTransactionInput; pagination: { page: number; pageSize: number } }) => {
+    const response = await client.query({
+      query: GET_TRANSACTIONS,
+      variables: { filter, pagination },
+    })
+    return response.data.transactions
   }
 )
 
 export const createTransaction = createAsyncThunk<CreateTransactionMutation["createTransaction"], CreateTransactionInput>(
   "transaction/createTransaction",
-  async (input, { rejectWithValue, fulfillWithValue }) => {
-    try {
-      const { data } = await client.mutate<CreateTransactionMutation, CreateTransactionMutationVariables>({
-        mutation: CREATE_TRANSACTION,
-        variables: { input },
-        refetchQueries: [{ query: GET_TRANSACTIONS }],
-      })
-
-      if (!data) return rejectWithValue(data)
-      if (data.createTransaction.__typename === "TransactionMutation") {
-        return fulfillWithValue(data.createTransaction)
-      }
-      return rejectWithValue(data.createTransaction)
-    } catch (error) {
-      return rejectWithValue(error)
+  async (input, { rejectWithValue }) => {
+    const response = await client.mutate<CreateTransactionMutation, CreateTransactionMutationVariables>({
+      mutation: CREATE_TRANSACTION,
+      variables: { input },
+    })
+    if (response.data?.createTransaction.__typename === "TransactionMutation") {
+      return response.data.createTransaction
     }
+    return rejectWithValue(response.data?.createTransaction)
   }
 )
 
-export const updateTransaction = createAsyncThunk<UpdateTransactionMutation["updateTransaction"], UpdateTransactionInput>(
+export const updateTransaction = createAsyncThunk(
   "transaction/updateTransaction",
-  async (input, { rejectWithValue, fulfillWithValue }) => {
-    try {
-      const { data } = await client.mutate<UpdateTransactionMutation, UpdateTransactionMutationVariables>({
-        mutation: UPDATE_TRANSACTION,
-        variables: { input },
-        refetchQueries: [{ query: GET_TRANSACTIONS }],
-      })
-
-      if (!data) return rejectWithValue(data)
-      if (data.updateTransaction.__typename === "TransactionMutation") {
-        return fulfillWithValue(data.updateTransaction)
-      }
-      return rejectWithValue(data.updateTransaction)
-    } catch (error) {
-      return rejectWithValue(error)
-    }
+  async (input: { id: number; description: string; amount: number; categoryId: number; moneySourceId: number }) => {
+    const response = await client.mutate({
+      mutation: UPDATE_TRANSACTION,
+      variables: { input },
+    })
+    return response.data.updateTransaction
   }
 )
 
@@ -199,8 +171,8 @@ const transactionSlice = createSlice({
       state.pagination.page = 1 // Reset to first page when changing page size
     },
     startEditing: (state, action) => {
-      const { id, description, amount, categoryId } = action.payload
-      state.editingTransaction = { id, description, amount, categoryId }
+      const { id, description, amount, categoryId, moneySourceId } = action.payload
+      state.editingTransaction = { id, description, amount, categoryId, moneySourceId }
     },
     cancelEditing: (state) => {
       state.editingTransaction = { ...initialState.editingTransaction }
@@ -215,44 +187,25 @@ const transactionSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Get Transactions
     builder
       .addCase(getTransactions.pending, (state) => {
         state.loading = true
       })
       .addCase(getTransactions.fulfilled, (state, action) => {
-        if (action.payload.__typename === "TransactionList") {
+        if (action.payload.data) {
           state.transactions = action.payload.data
           state.pagination.total = action.payload.pagination.total
         }
         state.loading = false
       })
-      .addCase(getTransactions.rejected, (state, { payload }) => {
+      .addCase(getTransactions.rejected, (state) => {
         state.loading = false
-        handleGraphQLError(payload, "Failed to fetch transactions", "Could not load transactions. Please try again")
       })
-
-    // Create Transaction
-    builder
-      .addCase(createTransaction.fulfilled, (_, action) => {
-        if (action.payload.__typename === "TransactionMutation") {
-          handleGraphQLMessage(action.payload)
-        }
+      .addCase(createTransaction.fulfilled, (state, action) => {
+        handleGraphQLMessage(action.payload)
       })
-      .addCase(createTransaction.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Failed to create transaction", "Could not create transaction. Please try again")
-      })
-
-    // Update Transaction
-    builder
-      .addCase(updateTransaction.fulfilled, (state, action) => {
-        if (action.payload.__typename === "TransactionMutation") {
-          state.editingTransaction = { ...initialState.editingTransaction }
-          handleGraphQLMessage(action.payload)
-        }
-      })
-      .addCase(updateTransaction.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Failed to update transaction", "Could not update transaction. Please try again")
+      .addCase(createTransaction.rejected, (state, action) => {
+        handleGraphQLError(action.payload)
       })
   },
 })

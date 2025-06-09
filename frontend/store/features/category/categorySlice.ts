@@ -3,7 +3,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
-import { ERROR_FRAGMENT } from "@/graphql/fragments"
+import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
 import {
   CreateCategoryMutation,
   CreateCategoryMutationVariables,
@@ -18,29 +18,30 @@ import {
 import { CreateCategoryInput, DeleteCategoryInput, PaginationInput, UpdateCategoryInput } from "@/graphql/types"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
-const CATEGORY_FRAGMENT = gql`
+// GraphQL Fragments
+export const CATEGORY_FIELDS = gql`
   fragment CategoryFields on Category {
     id
     name
   }
 `
 
+// GraphQL Queries and Mutations
 const GET_CATEGORIES = gql`
-  ${CATEGORY_FRAGMENT}
+  ${CATEGORY_FIELDS}
   ${ERROR_FRAGMENT}
+  ${PAGINATION_FRAGMENT}
   query GetCategories($pagination: PaginationInput) {
     categories(pagination: $pagination) {
       ... on CategoryList {
+        message
+        statusCode
         data {
           ...CategoryFields
         }
-        message
         pagination {
-          page
-          pageSize
-          total
+          ...PaginationFields
         }
-        statusCode
       }
       ... on ErrorOutput {
         ...ErrorFields
@@ -50,7 +51,7 @@ const GET_CATEGORIES = gql`
 `
 
 const CREATE_CATEGORY = gql`
-  ${CATEGORY_FRAGMENT}
+  ${CATEGORY_FIELDS}
   ${ERROR_FRAGMENT}
   mutation CreateCategory($input: CreateCategoryInput!) {
     createCategory(input: $input) {
@@ -69,7 +70,7 @@ const CREATE_CATEGORY = gql`
 `
 
 const UPDATE_CATEGORY = gql`
-  ${CATEGORY_FRAGMENT}
+  ${CATEGORY_FIELDS}
   ${ERROR_FRAGMENT}
   mutation UpdateCategory($input: UpdateCategoryInput!) {
     updateCategory(input: $input) {

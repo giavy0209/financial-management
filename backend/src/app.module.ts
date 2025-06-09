@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './common/guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { MoneySourceModule } from './money-source/money-source.module';
 registerEnumType(HttpStatus, { name: 'HttpCode' });
 @Module({
   imports: [
@@ -29,6 +30,7 @@ registerEnumType(HttpStatus, { name: 'HttpCode' });
     PrismaModule,
     CategoryModule,
     TransactionModule,
+    MoneySourceModule,
   ],
   providers: [
     JwtService,

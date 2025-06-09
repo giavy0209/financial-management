@@ -1,5 +1,5 @@
 import { Field, Float, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class CreateTransactionInput {
@@ -15,4 +15,12 @@ export class CreateTransactionInput {
   @Field(() => Int)
   @IsInt()
   categoryId: number;
+
+  @Field(() => Int)
+  @IsInt()
+  moneySourceId: number;
+
+  @Field(() => Date)
+  @IsDate()
+  createdAt: Date;
 }

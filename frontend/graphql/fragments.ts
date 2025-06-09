@@ -9,3 +9,11 @@ export const ERROR_FRAGMENT = gql`
     errors
   }
 `
+
+export const PAGINATION_FRAGMENT = gql`
+  fragment PaginationFields on PaginationData {
+    page
+    pageSize
+    total
+  }
+`

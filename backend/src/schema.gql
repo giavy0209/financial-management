@@ -16,7 +16,6 @@ type BooleanMutation implements BaseResponse {
 type Category {
   id: Int!
   name: String!
-  transactions: [Transaction!]!
 }
 
 type CategoryList implements BaseResponse {
@@ -36,10 +35,16 @@ input CreateCategoryInput {
   name: String!
 }
 
+input CreateMoneySourceInput {
+  name: String!
+}
+
 input CreateTransactionInput {
   amount: Float!
   categoryId: Int!
+  createdAt: DateTime!
   description: String
+  moneySourceId: Int!
 }
 
 """
@@ -48,6 +53,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input DeleteCategoryInput {
+  id: Int!
+}
+
+input DeleteMoneySourceInput {
   id: Int!
 }
 
@@ -61,6 +70,7 @@ input GetTransactionInput {
   categoryId: Int
   fromAmount: Float
   fromDate: DateTime
+  moneySourceId: Int
   toAmount: Float
   toDate: DateTime
 }
@@ -144,13 +154,37 @@ type LoginMutation implements BaseResponse {
   statusCode: HttpCode!
 }
 
+type MoneySource {
+  createdAt: DateTime!
+  id: Int!
+  name: String!
+  transactions: [Transaction!]
+  updatedAt: DateTime!
+}
+
+type MoneySourceList implements BaseResponse {
+  data: [MoneySource!]!
+  message: [String!]!
+  pagination: PaginationData!
+  statusCode: HttpCode!
+}
+
+type MoneySourceMutation implements BaseResponse {
+  data: MoneySource!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
 type Mutation {
   createCategory(input: CreateCategoryInput!): ResultUnionCategoryMutation!
+  createMoneySource(input: CreateMoneySourceInput!): ResultUnionMoneySourceMutation!
   createTransaction(input: CreateTransactionInput!): ResultUnionTransactionMutation!
   deleteCategory(input: DeleteCategoryInput!): ResultUnionBooleanMutation!
+  deleteMoneySource(input: DeleteMoneySourceInput!): ResultUnionBooleanMutation!
   login(input: LoginInput!): ResultUnionLoginMutation!
   signup(input: SignupInput!): ResultUnionSignupMutation!
   updateCategory(input: UpdateCategoryInput!): ResultUnionCategoryMutation!
+  updateMoneySource(input: UpdateMoneySourceInput!): ResultUnionMoneySourceMutation!
   updateTransaction(input: UpdateTransactionInput!): ResultUnionTransactionMutation!
 }
 
@@ -170,6 +204,7 @@ input PaginationInput {
 type Query {
   categories(pagination: PaginationInput): ResultUnionCategoryList!
   me: ResultUnionUserSingle!
+  moneySources(pagination: PaginationInput): ResultUnionMoneySourceList!
   transactions(filter: GetTransactionInput, pagination: PaginationInput): ResultUnionTransactionList!
 }
 
@@ -180,6 +215,10 @@ union ResultUnionCategoryList = CategoryList | ErrorOutput
 union ResultUnionCategoryMutation = CategoryMutation | ErrorOutput
 
 union ResultUnionLoginMutation = ErrorOutput | LoginMutation
+
+union ResultUnionMoneySourceList = ErrorOutput | MoneySourceList
+
+union ResultUnionMoneySourceMutation = ErrorOutput | MoneySourceMutation
 
 union ResultUnionSignupMutation = ErrorOutput | SignupMutation
 
@@ -211,6 +250,7 @@ type Transaction {
   createdAt: DateTime!
   description: String
   id: Int!
+  moneySource: MoneySource!
 }
 
 type TransactionList implements BaseResponse {
@@ -231,11 +271,18 @@ input UpdateCategoryInput {
   name: String!
 }
 
-input UpdateTransactionInput {
-  amount: Float
-  categoryId: Int
-  description: String
+input UpdateMoneySourceInput {
   id: Int!
+  name: String!
+}
+
+input UpdateTransactionInput {
+  amount: Float!
+  categoryId: Int!
+  createdAt: DateTime!
+  description: String!
+  id: Int!
+  moneySourceId: Int!
 }
 
 type User {

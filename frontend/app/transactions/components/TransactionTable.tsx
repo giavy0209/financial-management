@@ -9,6 +9,7 @@ import { getTransactions, updateTransaction, setPage, setPageSize, startEditing,
 import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
 import CategorySelect from "./CategorySelect"
+import MoneySourceSelect from "./MoneySourceSelect"
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -26,8 +27,8 @@ const TransactionTable = memo(() => {
     dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
   }, [dispatch, page, pageSize, filters])
 
-  const handleEdit = (id: number, description: string | null = "", amount: number, categoryId: number) => {
-    dispatch(startEditing({ id, description, amount, categoryId }))
+  const handleEdit = (id: number, description: string | null = "", amount: number, categoryId: number, moneySourceId: number) => {
+    dispatch(startEditing({ id, description, amount, categoryId, moneySourceId }))
   }
 
   const handleSave = async (id: number) => {
@@ -38,6 +39,7 @@ const TransactionTable = memo(() => {
           description: editingTransaction.description,
           amount: editingTransaction.amount,
           categoryId: editingTransaction.categoryId,
+          moneySourceId: editingTransaction.moneySourceId,
         })
       ).unwrap()
       dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
@@ -106,6 +108,18 @@ const TransactionTable = memo(() => {
         ),
     },
     {
+      header: "Money Source",
+      key: "moneySource",
+      render: (transaction) =>
+        editingTransaction.id === transaction.id ? (
+          <div className="w-48">
+            <MoneySourceSelect value={editingTransaction.moneySourceId} onChange={(moneySourceId) => dispatch(startEditing({ ...editingTransaction, moneySourceId }))} />
+          </div>
+        ) : (
+          <div className="text-sm text-gray-900">{transaction.moneySource.name}</div>
+        ),
+    },
+    {
       header: "Created At",
       key: "createdAt",
       render: (transaction) => <div className="text-sm text-gray-900">{formatDate(transaction.createdAt)}</div>,
@@ -127,7 +141,7 @@ const TransactionTable = memo(() => {
         ) : (
           <>
             <button
-              onClick={() => handleEdit(transaction.id, transaction.description, transaction.amount, transaction.category.id)}
+              onClick={() => handleEdit(transaction.id, transaction.description, transaction.amount, transaction.category.id, transaction.moneySource.id)}
               className="text-indigo-600 hover:text-indigo-900"
             >
               Edit

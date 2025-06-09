@@ -50,3 +50,7 @@ export const handleGraphQLError = (error: unknown, title = "Error", fallbackMess
     description: fallbackMessage,
   })
 }
+
+export function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ")
+}

@@ -7,13 +7,18 @@ import CreateCategoryButton from "./components/CreateCategoryButton"
 
 export default function CategoriesPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-        <CreateCategoryButton />
+    <div>
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-xl font-semibold text-gray-900">Categories</h1>
+          <p className="mt-2 text-sm text-gray-700">A list of all categories in your account.</p>
+        </div>
+        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+          <CreateCategoryButton />
+        </div>
       </div>
 
-      <div className="bg-white shadow-sm rounded-lg">
+      <div className="mt-8">
         <CategoryTable />
       </div>
     </div>

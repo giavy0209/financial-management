@@ -14,25 +14,26 @@ import { CreateCategoryInput } from './input/create-category.input';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { UpdateCategoryInput } from './input/update-category.input';
 import { DeleteCategoryInput } from './input/delete-category.input';
-
 @Resolver('Category')
 export class CategoryResolver {
   constructor(private readonly categoryService: CategoryService) {}
 
   @QueryList(Category)
   async categories(
-    @FieldMap('categories.data') fieldMap: FieldMap,
-    @CurrentUser() user: JwtPayload['user'],
     @Pagination() pagination: Pagination,
+    // @FieldMap('categories.data') fieldMap: FieldMap,
+    // @CurrentUser() user: JwtPayload['user'],
   ) {
-    const { data, total } = await this.categoryService.getCategories(
-      user.id,
-      pagination,
-      fieldMap,
-    );
+    console.log({ pagination });
+
+    // const { data, total } = await this.categoryService.getCategories(
+    //   user.id,
+    //   pagination,
+    //   fieldMap,
+    // );
     return {
-      data,
-      total,
+      data: [],
+      total: 10,
       message: 'Categories fetched successfully',
     };
   }

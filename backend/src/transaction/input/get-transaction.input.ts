@@ -8,6 +8,11 @@ export class GetTransactionInput {
   @IsOptional()
   categoryId?: number;
 
+  @Field(() => Int, { nullable: true })
+  @IsInt()
+  @IsOptional()
+  moneySourceId?: number;
+
   @Field(() => Float, { nullable: true })
   @IsNumber()
   @IsOptional()

@@ -5,50 +5,84 @@
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/store/store"
 import { createTransaction, getTransactions } from "@/store/features/transaction/transactionSlice"
+import { getCategories } from "@/store/features/category/categorySlice"
+import { getMoneySources } from "@/store/features/moneySource/moneySourceSlice"
 import TransactionTable from "./components/TransactionTable"
-import { useState } from "react"
-import Modal from "@/app/components/Modal"
-import CategorySelect from "./components/CategorySelect"
-import TransactionFilters from "./components/TransactionFilters"
+import { useCallback, useState } from "react"
+import Button from "@/app/components/Button"
+import FormModal from "@/app/components/FormModal"
+import { FormInput, FormCombobox, FormTextArea } from "@/app/components/form"
+import { Option } from "@/app/components/form/FormCombobox"
 
 export default function TransactionsPage() {
-  console.log("render TransactionsPage")
-
   const dispatch = useDispatch<AppDispatch>()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [newTransaction, setNewTransaction] = useState({
-    description: "",
     amount: 0,
+    description: "",
+    createdAt: new Date(),
     categoryId: 0,
+    moneySourceId: 0,
   })
 
+  const loadCategories = useCallback(
+    async (page: number): Promise<Option[]> => {
+      const result = await dispatch(getCategories({ page, pageSize: 10 })).unwrap()
+      if (result.__typename === "CategoryList") {
+        return result.data.map((category) => ({
+          value: category.id,
+          label: category.name,
+        }))
+      }
+      return []
+    },
+    [dispatch]
+  )
+
+  const loadMoneySources = useCallback(
+    async (page: number): Promise<Option[]> => {
+      const result = await dispatch(getMoneySources({ pagination: { page, pageSize: 10 } })).unwrap()
+      if (result.__typename === "MoneySourceList") {
+        return result.data.map((source) => ({
+          value: source.id,
+          label: source.name,
+        }))
+      }
+      return []
+    },
+    [dispatch]
+  )
+
   const handleCreateTransaction = async () => {
-    await dispatch(createTransaction(newTransaction)).unwrap()
-    setIsModalOpen(false)
-    setNewTransaction({
-      description: "",
-      amount: 0,
-      categoryId: 0,
-    })
-    dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
+    try {
+      setIsSubmitting(true)
+      await dispatch(createTransaction(newTransaction)).unwrap()
+      setIsModalOpen(false)
+      setNewTransaction({
+        amount: 0,
+        description: "",
+        createdAt: new Date(),
+        categoryId: 0,
+        moneySourceId: 0,
+      })
+      dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
+    } catch (error) {
+      console.error("Failed to create transaction:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
           <p className="mt-2 text-sm text-gray-700">A list of all transactions in your account.</p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none space-x-4 flex items-center">
-          <TransactionFilters />
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Add Transaction
-          </button>
+        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+          <Button onClick={() => setIsModalOpen(true)}>Add Transaction</Button>
         </div>
       </div>
 
@@ -56,57 +90,43 @@ export default function TransactionsPage() {
         <TransactionTable />
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Transaction">
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-              Amount
-            </label>
-            <input
-              type="number"
-              id="amount"
-              value={newTransaction.amount}
-              onChange={(e) => setNewTransaction({ ...newTransaction, amount: parseFloat(e.target.value) })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-              Category
-            </label>
-            <CategorySelect value={newTransaction.categoryId} onChange={(categoryId) => setNewTransaction({ ...newTransaction, categoryId })} />
-          </div>
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description (Optional)
-            </label>
-            <textarea
-              id="description"
-              value={newTransaction.description}
-              onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-        <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={handleCreateTransaction}
-            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-2 sm:text-sm"
-          >
-            Create
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-1 sm:mt-0 sm:text-sm"
-          >
-            Cancel
-          </button>
-        </div>
-      </Modal>
+      <FormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Transaction" onSubmit={handleCreateTransaction} isSubmitting={isSubmitting}>
+        <FormInput
+          id="amount"
+          type="number"
+          label="Amount"
+          value={newTransaction.amount}
+          onChange={(value) => setNewTransaction({ ...newTransaction, amount: Number(value) })}
+          required
+        />
+        <FormTextArea id="description" label="Description" value={newTransaction.description} onChange={(value) => setNewTransaction({ ...newTransaction, description: value })} />
+        <FormInput
+          id="date"
+          type="date"
+          label="Date"
+          value={newTransaction.createdAt.toISOString().split("T")[0]}
+          onChange={(value) => setNewTransaction({ ...newTransaction, createdAt: new Date(value) })}
+          required
+        />
+        <FormCombobox
+          id="categoryId"
+          label="Category"
+          value={newTransaction.categoryId}
+          onChange={(value) => setNewTransaction({ ...newTransaction, categoryId: Number(value) })}
+          options={[]}
+          loadMore={loadCategories}
+          required
+        />
+        <FormCombobox
+          id="moneySourceId"
+          label="Money Source"
+          value={newTransaction.moneySourceId}
+          onChange={(value) => setNewTransaction({ ...newTransaction, moneySourceId: Number(value) })}
+          options={[]}
+          loadMore={loadMoneySources}
+          required
+        />
+      </FormModal>
     </div>
   )
 }

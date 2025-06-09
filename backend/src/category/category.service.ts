@@ -38,6 +38,8 @@ export class CategoryService {
     pagination: Pagination,
     fieldMap: FieldMap,
   ) {
+    console.log({ pagination });
+
     const { data, total } = await this.prisma.category.findAndPagination({
       where: {
         userId,

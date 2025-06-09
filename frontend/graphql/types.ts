@@ -54,13 +54,23 @@ export type CreateCategoryInput = {
   name: Scalars['String']['input'];
 };
 
+export type CreateMoneySourceInput = {
+  name: Scalars['String']['input'];
+};
+
 export type CreateTransactionInput = {
   amount: Scalars['Float']['input'];
   categoryId: Scalars['Int']['input'];
+  createdAt: Scalars['DateTime']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  moneySourceId: Scalars['Int']['input'];
 };
 
 export type DeleteCategoryInput = {
+  id: Scalars['Int']['input'];
+};
+
+export type DeleteMoneySourceInput = {
   id: Scalars['Int']['input'];
 };
 
@@ -75,6 +85,7 @@ export type GetTransactionInput = {
   categoryId?: InputMaybe<Scalars['Int']['input']>;
   fromAmount?: InputMaybe<Scalars['Float']['input']>;
   fromDate?: InputMaybe<Scalars['DateTime']['input']>;
+  moneySourceId?: InputMaybe<Scalars['Int']['input']>;
   toAmount?: InputMaybe<Scalars['Float']['input']>;
   toDate?: InputMaybe<Scalars['DateTime']['input']>;
 };
@@ -155,20 +166,52 @@ export type LoginMutation = BaseResponse & {
   statusCode: HttpCode;
 };
 
+export type MoneySource = {
+  __typename?: 'MoneySource';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  transactions?: Maybe<Array<Transaction>>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MoneySourceList = BaseResponse & {
+  __typename?: 'MoneySourceList';
+  data: Array<MoneySource>;
+  message: Array<Scalars['String']['output']>;
+  pagination: PaginationData;
+  statusCode: HttpCode;
+};
+
+export type MoneySourceMutation = BaseResponse & {
+  __typename?: 'MoneySourceMutation';
+  data: MoneySource;
+  message: Array<Scalars['String']['output']>;
+  statusCode: HttpCode;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createCategory: ResultUnionCategoryMutation;
+  createMoneySource: ResultUnionMoneySourceMutation;
   createTransaction: ResultUnionTransactionMutation;
   deleteCategory: ResultUnionBooleanMutation;
+  deleteMoneySource: ResultUnionBooleanMutation;
   login: ResultUnionLoginMutation;
   signup: ResultUnionSignupMutation;
   updateCategory: ResultUnionCategoryMutation;
+  updateMoneySource: ResultUnionMoneySourceMutation;
   updateTransaction: ResultUnionTransactionMutation;
 };
 
 
 export type MutationCreateCategoryArgs = {
   input: CreateCategoryInput;
+};
+
+
+export type MutationCreateMoneySourceArgs = {
+  input: CreateMoneySourceInput;
 };
 
 
@@ -179,6 +222,11 @@ export type MutationCreateTransactionArgs = {
 
 export type MutationDeleteCategoryArgs = {
   input: DeleteCategoryInput;
+};
+
+
+export type MutationDeleteMoneySourceArgs = {
+  input: DeleteMoneySourceInput;
 };
 
 
@@ -194,6 +242,11 @@ export type MutationSignupArgs = {
 
 export type MutationUpdateCategoryArgs = {
   input: UpdateCategoryInput;
+};
+
+
+export type MutationUpdateMoneySourceArgs = {
+  input: UpdateMoneySourceInput;
 };
 
 
@@ -219,11 +272,17 @@ export type Query = {
   __typename?: 'Query';
   categories: ResultUnionCategoryList;
   me: ResultUnionUserSingle;
+  moneySources: ResultUnionMoneySourceList;
   transactions: ResultUnionTransactionList;
 };
 
 
 export type QueryCategoriesArgs = {
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryMoneySourcesArgs = {
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -240,6 +299,10 @@ export type ResultUnionCategoryList = CategoryList | ErrorOutput;
 export type ResultUnionCategoryMutation = CategoryMutation | ErrorOutput;
 
 export type ResultUnionLoginMutation = ErrorOutput | LoginMutation;
+
+export type ResultUnionMoneySourceList = ErrorOutput | MoneySourceList;
+
+export type ResultUnionMoneySourceMutation = ErrorOutput | MoneySourceMutation;
 
 export type ResultUnionSignupMutation = ErrorOutput | SignupMutation;
 
@@ -274,6 +337,7 @@ export type Transaction = {
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
+  moneySource: MoneySource;
 };
 
 export type TransactionList = BaseResponse & {
@@ -296,11 +360,18 @@ export type UpdateCategoryInput = {
   name: Scalars['String']['input'];
 };
 
-export type UpdateTransactionInput = {
-  amount?: InputMaybe<Scalars['Float']['input']>;
-  categoryId?: InputMaybe<Scalars['Int']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
+export type UpdateMoneySourceInput = {
   id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type UpdateTransactionInput = {
+  amount: Scalars['Float']['input'];
+  categoryId: Scalars['Int']['input'];
+  createdAt: Scalars['DateTime']['input'];
+  description: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  moneySourceId: Scalars['Int']['input'];
 };
 
 export type User = {

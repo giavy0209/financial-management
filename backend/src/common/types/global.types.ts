@@ -22,11 +22,6 @@ declare global {
   interface Pagination {
     skip: undefined | number;
     take: undefined | number;
-    orderBy:
-      | {
-          [key: string]: 'asc' | 'desc';
-        }
-      | undefined;
   }
 
   type ResolverReturnedType<T = any> = Promise<{
