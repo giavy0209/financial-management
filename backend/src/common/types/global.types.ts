@@ -1,7 +1,7 @@
 /* eslint-disable no-var */
 import { ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { BasePrismaService } from 'src/common/prisma/prisma.service';
+import { BasePrismaService } from '../../common/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from 'dotenv';

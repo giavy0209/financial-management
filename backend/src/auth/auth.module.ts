@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { BasePrismaService } from 'src/common/prisma/prisma.service';
 import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
 
@@ -11,6 +10,6 @@ import { AuthService } from './auth.service';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [AuthResolver, AuthService, BasePrismaService],
+  providers: [AuthResolver, AuthService],
 })
 export class AuthModule {}
