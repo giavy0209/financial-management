@@ -7,7 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectDatabase } from 'src/common/decorators/inject-database.decorator';
-
 @Injectable()
 export class AuthService {
   @InjectDatabase() private prisma: PrismaService;
