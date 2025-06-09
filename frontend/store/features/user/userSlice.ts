@@ -1,7 +1,7 @@
 /** @format */
 
-import { SignupInput, User, LoginInput } from "@/graphql/types"
-import { SignupMutation, LoginMutation, LoginMutationVariables, SignupMutationVariables } from "@/graphql/queries"
+import { SignupInput, LoginInput } from "@/graphql/types"
+import { SignupMutation, LoginMutation, LoginMutationVariables, SignupMutationVariables, UserFieldsFragment } from "@/graphql/queries"
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { gql } from "@apollo/client"
 import { client } from "@/lib/apollo-client"
@@ -151,7 +151,7 @@ export const getCurrentUser = createAsyncThunk("user/getCurrentUser", async (_, 
 
 type UserState = {
   isLoggedIn: boolean
-  user: User | null
+  user: UserFieldsFragment | null
   loading: boolean
 }
 

@@ -4,7 +4,7 @@
 
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/store/store"
-import { createTransaction, getTransactions } from "@/store/features/transaction/transactionSlice"
+import { createTransaction, getTransactions, updateTransaction, startEditing, cancelEditing } from "@/store/features/transaction/transactionSlice"
 import { getCategories } from "@/store/features/category/categorySlice"
 import { getMoneySources } from "@/store/features/moneySource/moneySourceSlice"
 import TransactionTable from "./components/TransactionTable"
@@ -13,10 +13,12 @@ import Button from "@/app/components/Button"
 import FormModal from "@/app/components/FormModal"
 import { FormInput, FormCombobox, FormTextArea } from "@/app/components/form"
 import { Option } from "@/app/components/form/FormCombobox"
+import { useAppSelector } from "@/store/hooks"
+import { config } from "@/config"
 
 export default function TransactionsPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newTransaction, setNewTransaction] = useState({
     amount: 0,
@@ -25,10 +27,12 @@ export default function TransactionsPage() {
     categoryId: 0,
     moneySourceId: 0,
   })
+  const { editingTransaction } = useAppSelector((state) => state.transaction)
 
   const loadCategories = useCallback(
     async (page: number): Promise<Option[]> => {
-      const result = await dispatch(getCategories({ page, pageSize: 10 })).unwrap()
+      console.log("loadCategories", page)
+      const result = await dispatch(getCategories({ page, pageSize: config.pageSize })).unwrap()
       if (result.__typename === "CategoryList") {
         return result.data.map((category) => ({
           value: category.id,
@@ -58,7 +62,7 @@ export default function TransactionsPage() {
     try {
       setIsSubmitting(true)
       await dispatch(createTransaction(newTransaction)).unwrap()
-      setIsModalOpen(false)
+      setIsCreateModalOpen(false)
       setNewTransaction({
         amount: 0,
         description: "",
@@ -74,6 +78,30 @@ export default function TransactionsPage() {
     }
   }
 
+  const handleEditTransaction = async () => {
+    if (!editingTransaction) return
+
+    try {
+      setIsSubmitting(true)
+      await dispatch(
+        updateTransaction({
+          id: editingTransaction.id,
+          amount: editingTransaction.amount,
+          description: editingTransaction.description,
+          createdAt: editingTransaction.createdAt,
+          categoryId: editingTransaction.category.id,
+          moneySourceId: editingTransaction.moneySource.id,
+        })
+      ).unwrap()
+      dispatch(cancelEditing())
+      dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
+    } catch (error) {
+      console.error("Failed to update transaction:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div>
       <div className="sm:flex sm:items-center">
@@ -82,7 +110,7 @@ export default function TransactionsPage() {
           <p className="mt-2 text-sm text-gray-700">A list of all transactions in your account.</p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button onClick={() => setIsModalOpen(true)}>Add Transaction</Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>Add Transaction</Button>
         </div>
       </div>
 
@@ -90,7 +118,8 @@ export default function TransactionsPage() {
         <TransactionTable />
       </div>
 
-      <FormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Transaction" onSubmit={handleCreateTransaction} isSubmitting={isSubmitting}>
+      {/* Create Transaction Modal */}
+      <FormModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create Transaction" onSubmit={handleCreateTransaction} isSubmitting={isSubmitting}>
         <FormInput
           id="amount"
           type="number"
@@ -127,6 +156,53 @@ export default function TransactionsPage() {
           required
         />
       </FormModal>
+
+      {/* Edit Transaction Modal */}
+      {editingTransaction && (
+        <FormModal
+          isOpen={!!editingTransaction}
+          onClose={() => {
+            dispatch(cancelEditing())
+          }}
+          title="Edit Transaction"
+          onSubmit={handleEditTransaction}
+          isSubmitting={isSubmitting}
+        >
+          <FormInput
+            id="amount"
+            type="number"
+            label="Amount"
+            value={editingTransaction.amount}
+            onChange={(value) => dispatch(startEditing({ ...editingTransaction, amount: Number(value) }))}
+            required
+          />
+          <FormTextArea
+            id="description"
+            label="Description"
+            value={editingTransaction.description || ""}
+            onChange={(value) => dispatch(startEditing({ ...editingTransaction, description: value }))}
+          />
+          <FormInput id="date" type="date" label="Date" value={new Date(editingTransaction.createdAt).toISOString().split("T")[0]} onChange={() => {}} disabled required />
+          <FormCombobox
+            id="categoryId"
+            label="Category"
+            value={editingTransaction.category.id}
+            onChange={(value) => dispatch(startEditing({ ...editingTransaction, category: { id: Number(value), name: editingTransaction.category.name } }))}
+            options={[{ value: editingTransaction.category.id, label: editingTransaction.category.name }]}
+            loadMore={loadCategories}
+            required
+          />
+          <FormCombobox
+            id="moneySourceId"
+            label="Money Source"
+            value={editingTransaction.moneySource.id}
+            onChange={(value) => dispatch(startEditing({ ...editingTransaction, moneySource: { id: Number(value), name: editingTransaction.moneySource.name } }))}
+            options={[{ value: editingTransaction.moneySource.id, label: editingTransaction.moneySource.name }]}
+            loadMore={loadMoneySources}
+            required
+          />
+        </FormModal>
+      )}
     </div>
   )
 }

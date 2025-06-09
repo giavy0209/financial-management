@@ -5,11 +5,9 @@
 import { memo, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "@/store/store"
-import { getTransactions, updateTransaction, setPage, setPageSize, startEditing, cancelEditing } from "@/store/features/transaction/transactionSlice"
+import { getTransactions, setPage, setPageSize, startEditing } from "@/store/features/transaction/transactionSlice"
 import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
-import CategorySelect from "./CategorySelect"
-import MoneySourceSelect from "./MoneySourceSelect"
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -19,7 +17,6 @@ const TransactionTable = memo(() => {
     transactions,
     pagination: { page, pageSize, total },
     loading,
-    editingTransaction,
     filters,
   } = useSelector((state: RootState) => state.transaction)
 
@@ -27,27 +24,18 @@ const TransactionTable = memo(() => {
     dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
   }, [dispatch, page, pageSize, filters])
 
-  const handleEdit = (id: number, description: string | null = "", amount: number, categoryId: number, moneySourceId: number) => {
-    dispatch(startEditing({ id, description, amount, categoryId, moneySourceId }))
+  const onEdit = (transaction: TransactionFieldsFragment) => {
+    dispatch(
+      startEditing({
+        id: transaction.id,
+        description: transaction.description || "",
+        amount: transaction.amount,
+        category: transaction.category,
+        moneySource: transaction.moneySource,
+        createdAt: transaction.createdAt,
+      })
+    )
   }
-
-  const handleSave = async (id: number) => {
-    try {
-      await dispatch(
-        updateTransaction({
-          id,
-          description: editingTransaction.description,
-          amount: editingTransaction.amount,
-          categoryId: editingTransaction.categoryId,
-          moneySourceId: editingTransaction.moneySourceId,
-        })
-      ).unwrap()
-      dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
-    } catch (error: unknown) {
-      console.error("Failed to update transaction:", error)
-    }
-  }
-
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -67,57 +55,23 @@ const TransactionTable = memo(() => {
     {
       header: "Description",
       key: "description",
-      render: (transaction) =>
-        editingTransaction.id === transaction.id ? (
-          <input
-            type="text"
-            value={editingTransaction.description}
-            onChange={(e) => dispatch(startEditing({ ...editingTransaction, description: e.target.value }))}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        ) : (
-          <div className="text-sm text-gray-900">{transaction.description}</div>
-        ),
+      render: (transaction) => <div className="text-sm text-gray-900">{transaction.description}</div>,
     },
     {
       header: "Amount",
       key: "amount",
       align: "right",
-      render: (transaction) =>
-        editingTransaction.id === transaction.id ? (
-          <input
-            type="number"
-            value={editingTransaction.amount}
-            onChange={(e) => dispatch(startEditing({ ...editingTransaction, amount: parseFloat(e.target.value) }))}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        ) : (
-          <div className="text-sm text-gray-900">{formatAmount(transaction.amount)}</div>
-        ),
+      render: (transaction) => <div className="text-sm text-gray-900">{formatAmount(transaction.amount)}</div>,
     },
     {
       header: "Category",
       key: "category",
-      render: (transaction) =>
-        editingTransaction.id === transaction.id ? (
-          <div className="w-48">
-            <CategorySelect value={editingTransaction.categoryId} onChange={(categoryId) => dispatch(startEditing({ ...editingTransaction, categoryId }))} />
-          </div>
-        ) : (
-          <div className="text-sm text-gray-900">{transaction.category.name}</div>
-        ),
+      render: (transaction) => <div className="text-sm text-gray-900">{transaction.category.name}</div>,
     },
     {
       header: "Money Source",
       key: "moneySource",
-      render: (transaction) =>
-        editingTransaction.id === transaction.id ? (
-          <div className="w-48">
-            <MoneySourceSelect value={editingTransaction.moneySourceId} onChange={(moneySourceId) => dispatch(startEditing({ ...editingTransaction, moneySourceId }))} />
-          </div>
-        ) : (
-          <div className="text-sm text-gray-900">{transaction.moneySource.name}</div>
-        ),
+      render: (transaction) => <div className="text-sm text-gray-900">{transaction.moneySource.name}</div>,
     },
     {
       header: "Created At",
@@ -128,26 +82,11 @@ const TransactionTable = memo(() => {
       header: "Actions",
       key: "actions",
       align: "right",
-      render: (transaction) =>
-        editingTransaction.id === transaction.id ? (
-          <>
-            <button onClick={() => handleSave(transaction.id)} className="text-indigo-600 hover:text-indigo-900">
-              Save
-            </button>
-            <button onClick={() => dispatch(cancelEditing())} className="ml-2 text-gray-600 hover:text-gray-900">
-              Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => handleEdit(transaction.id, transaction.description, transaction.amount, transaction.category.id, transaction.moneySource.id)}
-              className="text-indigo-600 hover:text-indigo-900"
-            >
-              Edit
-            </button>
-          </>
-        ),
+      render: (transaction) => (
+        <button onClick={() => onEdit(transaction)} className="text-indigo-600 hover:text-indigo-900">
+          Edit
+        </button>
+      ),
     },
   ]
 

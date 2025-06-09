@@ -14,7 +14,7 @@ interface FormInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "on
 
 export default function FormInput({ id, label, error, helperText, type = "text", className = "", required, disabled, placeholder, value, onChange, ...props }: FormInputProps) {
   const inputClasses = classNames(
-    "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+    "p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
     error ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500" : "",
     disabled ? "bg-gray-50 text-gray-500" : "",
     className

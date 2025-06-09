@@ -6,7 +6,7 @@ import { memo, useEffect } from "react"
 import { RootState } from "@/store/store"
 import { getMoneySources, updateMoneySource, setPage, setPageSize, startEditing, cancelEditing } from "@/store/features/moneySource/moneySourceSlice"
 import Table, { Column } from "@/app/components/Table"
-import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
 
 interface MoneySourceFieldsFragment {
   id: number

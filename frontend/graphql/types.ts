@@ -32,7 +32,6 @@ export type Category = {
   __typename?: 'Category';
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  transactions: Array<Transaction>;
 };
 
 export type CategoryList = BaseResponse & {

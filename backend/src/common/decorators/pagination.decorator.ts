@@ -14,7 +14,16 @@ export class PaginationInput {
 
 export const PaginationTest = createParamDecorator(
   async (_: unknown, context: ExecutionContext) => {
-    // return { skip, take };
+    const ctx = GqlExecutionContext.create(context);
+    const { page, pageSize } = (ctx.getArgs().pagination ||
+      {}) as PaginationInput;
+
+    let skip = 0;
+    const take = pageSize || Number.MAX_SAFE_INTEGER;
+    if (page && pageSize) {
+      skip = (page - 1) * pageSize;
+    }
+    return { skip, take };
   },
 );
 

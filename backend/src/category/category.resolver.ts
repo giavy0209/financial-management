@@ -21,19 +21,19 @@ export class CategoryResolver {
   @QueryList(Category)
   async categories(
     @Pagination() pagination: Pagination,
-    // @FieldMap('categories.data') fieldMap: FieldMap,
-    // @CurrentUser() user: JwtPayload['user'],
+    @FieldMap('categories.data') fieldMap: FieldMap,
+    @CurrentUser() user: JwtPayload['user'],
   ) {
     console.log({ pagination });
 
-    // const { data, total } = await this.categoryService.getCategories(
-    //   user.id,
-    //   pagination,
-    //   fieldMap,
-    // );
+    const { data, total } = await this.categoryService.getCategories(
+      user.id,
+      pagination,
+      fieldMap,
+    );
     return {
-      data: [],
-      total: 10,
+      data,
+      total,
       message: 'Categories fetched successfully',
     };
   }

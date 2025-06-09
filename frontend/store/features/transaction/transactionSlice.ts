@@ -1,11 +1,17 @@
 /** @format */
 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
 import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
 import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
-import { CreateTransactionInput, GetTransactionInput } from "@/graphql/types"
-import { CreateTransactionMutation, CreateTransactionMutationVariables, TransactionFieldsFragment } from "@/graphql/queries"
+import { CreateTransactionInput, GetTransactionInput, UpdateTransactionInput } from "@/graphql/types"
+import {
+  CreateTransactionMutation,
+  CreateTransactionMutationVariables,
+  TransactionFieldsFragment,
+  UpdateTransactionMutation,
+  UpdateTransactionMutationVariables,
+} from "@/graphql/queries"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
 // GraphQL Fragments
@@ -96,12 +102,19 @@ interface TransactionState {
   }
   loading: boolean
   editingTransaction: {
-    id: number | null
+    id: number
     description: string
     amount: number
-    categoryId: number
-    moneySourceId: number
-  }
+    category: {
+      id: number
+      name: string
+    }
+    moneySource: {
+      id: number
+      name: string
+    }
+    createdAt: string
+  } | null
   filters: GetTransactionInput
 }
 
@@ -113,13 +126,7 @@ const initialState: TransactionState = {
     total: 0,
   },
   loading: false,
-  editingTransaction: {
-    id: null,
-    description: "",
-    amount: 0,
-    categoryId: 0,
-    moneySourceId: 0,
-  },
+  editingTransaction: null,
   filters: {},
 }
 
@@ -148,14 +155,22 @@ export const createTransaction = createAsyncThunk<CreateTransactionMutation["cre
   }
 )
 
-export const updateTransaction = createAsyncThunk(
+export const updateTransaction = createAsyncThunk<UpdateTransactionMutation["updateTransaction"], UpdateTransactionInput>(
   "transaction/updateTransaction",
-  async (input: { id: number; description: string; amount: number; categoryId: number; moneySourceId: number }) => {
-    const response = await client.mutate({
-      mutation: UPDATE_TRANSACTION,
-      variables: { input },
-    })
-    return response.data.updateTransaction
+  async (input, { rejectWithValue }) => {
+    try {
+      const { data } = await client.mutate<UpdateTransactionMutation, UpdateTransactionMutationVariables>({
+        mutation: UPDATE_TRANSACTION,
+        variables: { input },
+      })
+      if (!data) return rejectWithValue(data)
+      if (data?.updateTransaction.__typename === "TransactionMutation") {
+        return data.updateTransaction
+      }
+      return rejectWithValue(data?.updateTransaction)
+    } catch (error) {
+      return rejectWithValue(error)
+    }
   }
 )
 
@@ -170,12 +185,22 @@ const transactionSlice = createSlice({
       state.pagination.pageSize = action.payload
       state.pagination.page = 1 // Reset to first page when changing page size
     },
-    startEditing: (state, action) => {
-      const { id, description, amount, categoryId, moneySourceId } = action.payload
-      state.editingTransaction = { id, description, amount, categoryId, moneySourceId }
+    startEditing: (
+      state,
+      action: PayloadAction<{
+        id: number
+        description: string
+        amount: number
+        category: { id: number; name: string }
+        moneySource: { id: number; name: string }
+        createdAt: string
+      }>
+    ) => {
+      const { id, description, amount, category, moneySource, createdAt } = action.payload
+      state.editingTransaction = { id, description, amount, category, moneySource, createdAt }
     },
     cancelEditing: (state) => {
-      state.editingTransaction = { ...initialState.editingTransaction }
+      state.editingTransaction = null
     },
     setFilters: (state, action) => {
       state.filters = action.payload
@@ -205,6 +230,13 @@ const transactionSlice = createSlice({
         handleGraphQLMessage(action.payload)
       })
       .addCase(createTransaction.rejected, (state, action) => {
+        handleGraphQLError(action.payload)
+      })
+      .addCase(updateTransaction.fulfilled, (state, action) => {
+        handleGraphQLMessage(action.payload)
+        state.editingTransaction = null
+      })
+      .addCase(updateTransaction.rejected, (state, action) => {
         handleGraphQLError(action.payload)
       })
   },
