@@ -14,15 +14,15 @@ import {
   MoneySourceFieldsFragment,
 } from "@/graphql/queries"
 import { CreateMoneySourceInput, UpdateMoneySourceInput } from "@/graphql/types"
-import { handleGraphQLError } from "@/lib/utils"
+import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
 // GraphQL Fragments
 export const MONEY_SOURCE_FIELDS = gql`
   fragment MoneySourceFields on MoneySource {
     id
     name
+    value
     createdAt
-    updatedAt
   }
 `
 
@@ -57,6 +57,7 @@ const CREATE_MONEY_SOURCE = gql`
         data {
           ...MoneySourceFields
         }
+        message
       }
       ... on ErrorOutput {
         ...ErrorFields
@@ -74,6 +75,7 @@ const UPDATE_MONEY_SOURCE = gql`
         data {
           ...MoneySourceFields
         }
+        message
       }
       ... on ErrorOutput {
         ...ErrorFields
@@ -91,9 +93,13 @@ interface MoneySourceState {
   }
   loading: boolean
   editingMoneySource: {
-    id: number | null
+    id: number
     name: string
-  }
+  } | null
+  newMoneySource: {
+    name: string
+    value: number
+  } | null
 }
 
 const initialState: MoneySourceState = {
@@ -104,10 +110,8 @@ const initialState: MoneySourceState = {
     total: 0,
   },
   loading: false,
-  editingMoneySource: {
-    id: null,
-    name: "",
-  },
+  editingMoneySource: null,
+  newMoneySource: null,
 }
 
 // Async Thunks
@@ -189,7 +193,10 @@ const moneySourceSlice = createSlice({
       state.editingMoneySource = { id, name }
     },
     cancelEditing: (state) => {
-      state.editingMoneySource = { id: null, name: "" }
+      state.editingMoneySource = null
+    },
+    setNewMoneySource: (state, action) => {
+      state.newMoneySource = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -211,26 +218,29 @@ const moneySourceSlice = createSlice({
       })
 
     // Create Money Source
-    builder.addCase(createMoneySource.fulfilled, (_, action) => {
-      if (action.payload.__typename === "MoneySourceMutation") {
-        // Success handled by refetchQueries
-      }
+    builder.addCase(createMoneySource.fulfilled, (state, action) => {
+      state.loading = false
+      state.newMoneySource = null
+      handleGraphQLMessage(action.payload)
     })
-    builder.addCase(createMoneySource.rejected, (_, { payload }) => {
+    builder.addCase(createMoneySource.rejected, (state, { payload }) => {
+      state.loading = false
       handleGraphQLError(payload)
     })
 
     // Update Money Source
     builder.addCase(updateMoneySource.fulfilled, (state, action) => {
-      if (action.payload.__typename === "MoneySourceMutation") {
-        state.editingMoneySource = { id: null, name: "" }
-      }
+      state.loading = false
+      state.editingMoneySource = null
+      handleGraphQLMessage(action.payload)
     })
-    builder.addCase(updateMoneySource.rejected, (_, { payload }) => {
+    builder.addCase(updateMoneySource.rejected, (state, { payload }) => {
+      state.loading = false
+      state.editingMoneySource = null
       handleGraphQLError(payload)
     })
   },
 })
 
-export const { setPage, setPageSize, startEditing, cancelEditing } = moneySourceSlice.actions
+export const { setPage, setPageSize, startEditing, cancelEditing, setNewMoneySource } = moneySourceSlice.actions
 export default moneySourceSlice.reducer

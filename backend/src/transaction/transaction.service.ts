@@ -37,15 +37,42 @@ export class TransactionService {
 
   async createTransaction(
     userId: number,
-    input: CreateTransactionInput,
+    {
+      amount,
+      categoryId,
+      createdAt,
+      moneySourceId,
+      description,
+    }: CreateTransactionInput,
     fieldMap: FieldMap,
   ) {
+    await this.prisma.moneySource.exists(
+      { id: moneySourceId, userId },
+      { throwCase: 'IF_NOT_EXISTS', message: `Money source not found` },
+    );
+
+    await this.prisma.category.exists(
+      { id: categoryId, userId },
+      { throwCase: 'IF_NOT_EXISTS', message: `Category not found` },
+    );
+
     const transaction = await this.prisma.transaction.create({
       data: {
-        ...input,
+        amount,
+        categoryId,
+        createdAt,
+        moneySourceId,
+        description,
         userId,
       },
       select: fieldMap,
+    });
+
+    await this.prisma.moneySource.update({
+      where: { id: moneySourceId },
+      data: {
+        value: { increment: amount },
+      },
     });
 
     return transaction;
@@ -53,25 +80,59 @@ export class TransactionService {
 
   async updateTransaction(
     userId: number,
-    input: UpdateTransactionInput,
+    {
+      amount,
+      id,
+      categoryId,
+      description,
+      createdAt,
+      moneySourceId,
+    }: UpdateTransactionInput,
     fieldMap: FieldMap,
   ) {
-    await this.prisma.transaction.exists(
+    await this.prisma.moneySource.exists(
+      { id: moneySourceId, userId },
+      { throwCase: 'IF_NOT_EXISTS', message: `Money source not found` },
+    );
+
+    await this.prisma.category.exists(
+      { id: categoryId, userId },
+      { throwCase: 'IF_NOT_EXISTS', message: `Category not found` },
+    );
+
+    const currentTransaction = await this.prisma.transaction.findFirstOrThrow(
       {
-        id: input.id,
-        userId,
+        where: { id, userId },
       },
       { throwCase: 'IF_NOT_EXISTS', message: `Transaction not found` },
     );
 
-    const updatedTransaction = await this.prisma.transaction.update({
-      where: { id: input.id },
+    await this.prisma.moneySource.update({
+      where: { id: currentTransaction.moneySourceId },
       data: {
-        amount: input.amount,
-        description: input.description,
-        categoryId: input.categoryId,
+        value: {
+          decrement: currentTransaction.amount,
+        },
+      },
+    });
+
+    const updatedTransaction = await this.prisma.transaction.update({
+      where: { id },
+      data: {
+        amount,
+        description,
+        categoryId,
+        createdAt,
+        moneySourceId,
       },
       select: fieldMap,
+    });
+
+    await this.prisma.moneySource.update({
+      where: { id: moneySourceId },
+      data: {
+        value: { increment: amount },
+      },
     });
 
     return updatedTransaction;

@@ -7,13 +7,8 @@ import { RootState } from "@/store/store"
 import { getMoneySources, updateMoneySource, setPage, setPageSize, startEditing, cancelEditing } from "@/store/features/moneySource/moneySourceSlice"
 import Table, { Column } from "@/app/components/Table"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-
-interface MoneySourceFieldsFragment {
-  id: number
-  name: string
-  createdAt: string
-  updatedAt: string
-}
+import { MoneySourceFieldsFragment } from "@/graphql/queries"
+import { formatAmount } from "@/lib/utils"
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -35,17 +30,14 @@ const MoneySourceTable = memo(() => {
   }
 
   const handleSave = async (id: number) => {
-    try {
-      await dispatch(
-        updateMoneySource({
-          id,
-          name: editingMoneySource.name,
-        })
-      ).unwrap()
-      dispatch(getMoneySources({ pagination: { page, pageSize } }))
-    } catch (error: unknown) {
-      console.error("Failed to update money source:", error)
-    }
+    if (!editingMoneySource) return
+    await dispatch(
+      updateMoneySource({
+        id,
+        name: editingMoneySource.name,
+      })
+    ).unwrap()
+    dispatch(getMoneySources({ pagination: { page, pageSize } }))
   }
 
   const formatDate = (date: string) => {
@@ -61,10 +53,10 @@ const MoneySourceTable = memo(() => {
       header: "Name",
       key: "name",
       render: (moneySource) =>
-        editingMoneySource.id === moneySource.id ? (
+        editingMoneySource?.id === moneySource.id ? (
           <input
             type="text"
-            value={editingMoneySource.name}
+            value={editingMoneySource?.name}
             onChange={(e) => dispatch(startEditing({ ...editingMoneySource, name: e.target.value }))}
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
@@ -78,16 +70,16 @@ const MoneySourceTable = memo(() => {
       render: (moneySource) => <div className="text-sm text-gray-900">{formatDate(moneySource.createdAt)}</div>,
     },
     {
-      header: "Updated At",
-      key: "updatedAt",
-      render: (moneySource) => <div className="text-sm text-gray-900">{formatDate(moneySource.updatedAt)}</div>,
+      header: "Balance",
+      key: "value",
+      render: (moneySource) => <div className="text-sm text-gray-900">{formatAmount(moneySource.value)}</div>,
     },
     {
       header: "Actions",
       key: "actions",
       align: "right",
       render: (moneySource) =>
-        editingMoneySource.id === moneySource.id ? (
+        editingMoneySource?.id === moneySource.id ? (
           <>
             <button onClick={() => handleSave(moneySource.id)} className="text-indigo-600 hover:text-indigo-900">
               Save

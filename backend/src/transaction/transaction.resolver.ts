@@ -25,7 +25,6 @@ export class TransactionResolver {
     @Pagination() pagination: Pagination,
     @FieldMap('transactions.data') fieldMap: FieldMap,
   ) {
-    console.log({ fieldMap });
     const { data, total } = await this.transactionService.getTransactions(
       user.id,
       filters,

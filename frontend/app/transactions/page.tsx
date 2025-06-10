@@ -4,11 +4,11 @@
 
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/store/store"
-import { createTransaction, getTransactions, updateTransaction, startEditing, cancelEditing } from "@/store/features/transaction/transactionSlice"
+import { createTransaction, getTransactions, updateTransaction, startEditing, cancelEditing, setNewTransaction } from "@/store/features/transaction/transactionSlice"
 import { getCategories } from "@/store/features/category/categorySlice"
 import { getMoneySources } from "@/store/features/moneySource/moneySourceSlice"
 import TransactionTable from "./components/TransactionTable"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import Button from "@/app/components/Button"
 import FormModal from "@/app/components/FormModal"
 import { FormInput, FormCombobox, FormTextArea } from "@/app/components/form"
@@ -18,20 +18,10 @@ import { config } from "@/config"
 
 export default function TransactionsPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [newTransaction, setNewTransaction] = useState({
-    amount: 0,
-    description: "",
-    createdAt: new Date(),
-    categoryId: 0,
-    moneySourceId: 0,
-  })
-  const { editingTransaction } = useAppSelector((state) => state.transaction)
+  const { editingTransaction, newTransaction, loading } = useAppSelector((state) => state.transaction)
 
   const loadCategories = useCallback(
     async (page: number): Promise<Option[]> => {
-      console.log("loadCategories", page)
       const result = await dispatch(getCategories({ page, pageSize: config.pageSize })).unwrap()
       if (result.__typename === "CategoryList") {
         return result.data.map((category) => ({
@@ -59,30 +49,16 @@ export default function TransactionsPage() {
   )
 
   const handleCreateTransaction = async () => {
-    try {
-      setIsSubmitting(true)
-      await dispatch(createTransaction(newTransaction)).unwrap()
-      setIsCreateModalOpen(false)
-      setNewTransaction({
-        amount: 0,
-        description: "",
-        createdAt: new Date(),
-        categoryId: 0,
-        moneySourceId: 0,
-      })
-      dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
-    } catch (error) {
-      console.error("Failed to create transaction:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
+    if (!newTransaction) return
+
+    await dispatch(createTransaction(newTransaction)).unwrap()
+    dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
   }
 
   const handleEditTransaction = async () => {
     if (!editingTransaction) return
 
     try {
-      setIsSubmitting(true)
       await dispatch(
         updateTransaction({
           id: editingTransaction.id,
@@ -97,8 +73,6 @@ export default function TransactionsPage() {
       dispatch(getTransactions({ filter: {}, pagination: { page: 1, pageSize: 10 } }))
     } catch (error) {
       console.error("Failed to update transaction:", error)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -110,7 +84,7 @@ export default function TransactionsPage() {
           <p className="mt-2 text-sm text-gray-700">A list of all transactions in your account.</p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button onClick={() => setIsCreateModalOpen(true)}>Add Transaction</Button>
+          <Button onClick={() => dispatch(setNewTransaction({ amount: 0, description: "", createdAt: new Date(), categoryId: 0, moneySourceId: 0 }))}>Add Transaction</Button>
         </div>
       </div>
 
@@ -119,29 +93,34 @@ export default function TransactionsPage() {
       </div>
 
       {/* Create Transaction Modal */}
-      <FormModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create Transaction" onSubmit={handleCreateTransaction} isSubmitting={isSubmitting}>
+      <FormModal isOpen={!!newTransaction} onClose={() => dispatch(setNewTransaction(null))} title="Create Transaction" onSubmit={handleCreateTransaction} isSubmitting={loading}>
         <FormInput
           id="amount"
           type="number"
           label="Amount"
-          value={newTransaction.amount}
-          onChange={(value) => setNewTransaction({ ...newTransaction, amount: Number(value) })}
+          value={newTransaction?.amount ?? 0}
+          onChange={(value) => dispatch(setNewTransaction({ ...newTransaction!, amount: Number(value) }))}
           required
         />
-        <FormTextArea id="description" label="Description" value={newTransaction.description} onChange={(value) => setNewTransaction({ ...newTransaction, description: value })} />
+        <FormTextArea
+          id="description"
+          label="Description"
+          value={newTransaction?.description ?? ""}
+          onChange={(value) => dispatch(setNewTransaction({ ...newTransaction!, description: value }))}
+        />
         <FormInput
           id="date"
           type="date"
           label="Date"
-          value={newTransaction.createdAt.toISOString().split("T")[0]}
-          onChange={(value) => setNewTransaction({ ...newTransaction, createdAt: new Date(value) })}
+          value={newTransaction?.createdAt.toISOString().split("T")[0] ?? new Date().toISOString().split("T")[0]}
+          onChange={(value) => dispatch(setNewTransaction({ ...newTransaction!, createdAt: new Date(value) }))}
           required
         />
         <FormCombobox
           id="categoryId"
           label="Category"
-          value={newTransaction.categoryId}
-          onChange={(value) => setNewTransaction({ ...newTransaction, categoryId: Number(value) })}
+          value={newTransaction?.categoryId ?? 0}
+          onChange={(value) => dispatch(setNewTransaction({ ...newTransaction!, categoryId: Number(value) }))}
           options={[]}
           loadMore={loadCategories}
           required
@@ -149,8 +128,8 @@ export default function TransactionsPage() {
         <FormCombobox
           id="moneySourceId"
           label="Money Source"
-          value={newTransaction.moneySourceId}
-          onChange={(value) => setNewTransaction({ ...newTransaction, moneySourceId: Number(value) })}
+          value={newTransaction?.moneySourceId ?? 0}
+          onChange={(value) => dispatch(setNewTransaction({ ...newTransaction!, moneySourceId: Number(value) }))}
           options={[]}
           loadMore={loadMoneySources}
           required
@@ -166,7 +145,8 @@ export default function TransactionsPage() {
           }}
           title="Edit Transaction"
           onSubmit={handleEditTransaction}
-          isSubmitting={isSubmitting}
+          isSubmitting={loading}
+          submitLabel="Save"
         >
           <FormInput
             id="amount"

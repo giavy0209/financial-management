@@ -55,6 +55,7 @@ export type CreateCategoryInput = {
 
 export type CreateMoneySourceInput = {
   name: Scalars['String']['input'];
+  value: Scalars['Float']['input'];
 };
 
 export type CreateTransactionInput = {
@@ -171,7 +172,7 @@ export type MoneySource = {
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   transactions?: Maybe<Array<Transaction>>;
-  updatedAt: Scalars['DateTime']['output'];
+  value: Scalars['Float']['output'];
 };
 
 export type MoneySourceList = BaseResponse & {

@@ -8,6 +8,7 @@ import { AppDispatch, RootState } from "@/store/store"
 import { getTransactions, setPage, setPageSize, startEditing } from "@/store/features/transaction/transactionSlice"
 import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
+import { formatAmount, formatDate } from "@/lib/utils"
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -35,20 +36,6 @@ const TransactionTable = memo(() => {
         createdAt: transaction.createdAt,
       })
     )
-  }
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount)
-  }
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
   }
 
   const columns: Column<TransactionFieldsFragment>[] = [

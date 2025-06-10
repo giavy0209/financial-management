@@ -24,8 +24,6 @@ export class CategoryResolver {
     @FieldMap('categories.data') fieldMap: FieldMap,
     @CurrentUser() user: JwtPayload['user'],
   ) {
-    console.log({ pagination });
-
     const { data, total } = await this.categoryService.getCategories(
       user.id,
       pagination,

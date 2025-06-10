@@ -45,7 +45,6 @@ export class JwtAuthGuard {
       const payload = this.jwtService.verify<JwtPayload>(token, {
         secret: global.Config.JWT_SECRET,
       });
-      console.log(payload);
 
       req.jwtPayload = payload;
       req.jwt = token;

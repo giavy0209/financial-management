@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { Transaction } from 'src/transaction/transaction.type';
 
 @ObjectType()
@@ -12,9 +12,9 @@ export class MoneySource {
   @Field(() => [Transaction], { nullable: true })
   transactions?: Transaction[];
 
-  @Field(() => Date)
-  createdAt: Date;
+  @Field(() => Float)
+  value: number;
 
   @Field(() => Date)
-  updatedAt: Date;
+  createdAt: Date;
 }

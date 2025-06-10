@@ -37,6 +37,7 @@ input CreateCategoryInput {
 
 input CreateMoneySourceInput {
   name: String!
+  value: Float!
 }
 
 input CreateTransactionInput {
@@ -159,7 +160,7 @@ type MoneySource {
   id: Int!
   name: String!
   transactions: [Transaction!]
-  updatedAt: DateTime!
+  value: Float!
 }
 
 type MoneySourceList implements BaseResponse {

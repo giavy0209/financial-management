@@ -116,10 +116,18 @@ interface TransactionState {
     createdAt: string
   } | null
   filters: GetTransactionInput
+  newTransaction: {
+    amount: number
+    description: string
+    createdAt: Date
+    categoryId: number
+    moneySourceId: number
+  } | null
 }
 
 const initialState: TransactionState = {
   transactions: [],
+  filters: {},
   pagination: {
     page: 1,
     pageSize: 10,
@@ -127,7 +135,7 @@ const initialState: TransactionState = {
   },
   loading: false,
   editingTransaction: null,
-  filters: {},
+  newTransaction: null,
 }
 
 export const getTransactions = createAsyncThunk(
@@ -210,6 +218,18 @@ const transactionSlice = createSlice({
       state.filters = {}
       state.pagination.page = 1
     },
+    setNewTransaction: (
+      state,
+      action: PayloadAction<{
+        amount: number
+        description: string
+        createdAt: Date
+        categoryId: number
+        moneySourceId: number
+      } | null>
+    ) => {
+      state.newTransaction = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -226,10 +246,16 @@ const transactionSlice = createSlice({
       .addCase(getTransactions.rejected, (state) => {
         state.loading = false
       })
+      .addCase(createTransaction.pending, (state) => {
+        state.loading = true
+      })
       .addCase(createTransaction.fulfilled, (state, action) => {
+        state.loading = false
+        state.newTransaction = null
         handleGraphQLMessage(action.payload)
       })
       .addCase(createTransaction.rejected, (state, action) => {
+        state.loading = false
         handleGraphQLError(action.payload)
       })
       .addCase(updateTransaction.fulfilled, (state, action) => {
@@ -242,5 +268,5 @@ const transactionSlice = createSlice({
   },
 })
 
-export const { setPage, setPageSize, startEditing, cancelEditing, setFilters, clearFilters } = transactionSlice.actions
+export const { setPage, setPageSize, startEditing, cancelEditing, setFilters, clearFilters, setNewTransaction } = transactionSlice.actions
 export default transactionSlice.reducer

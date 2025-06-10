@@ -34,28 +34,28 @@ export type DeleteCategoryMutationVariables = Types.Exact<{
 
 export type DeleteCategoryMutation = { __typename?: 'Mutation', deleteCategory: { __typename?: 'BooleanMutation', message: Array<string>, statusCode: Types.HttpCode, data: boolean } | { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } };
 
-export type MoneySourceFieldsFragment = { __typename?: 'MoneySource', id: number, name: string, createdAt: any, updatedAt: any };
+export type MoneySourceFieldsFragment = { __typename?: 'MoneySource', id: number, name: string, value: number, createdAt: any };
 
 export type GetMoneySourcesQueryVariables = Types.Exact<{
   pagination?: Types.InputMaybe<Types.PaginationInput>;
 }>;
 
 
-export type GetMoneySourcesQuery = { __typename?: 'Query', moneySources: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceList', data: Array<{ __typename?: 'MoneySource', id: number, name: string, createdAt: any, updatedAt: any }>, pagination: { __typename?: 'PaginationData', page: number, pageSize: number, total: number } } };
+export type GetMoneySourcesQuery = { __typename?: 'Query', moneySources: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceList', data: Array<{ __typename?: 'MoneySource', id: number, name: string, value: number, createdAt: any }>, pagination: { __typename?: 'PaginationData', page: number, pageSize: number, total: number } } };
 
 export type CreateMoneySourceMutationVariables = Types.Exact<{
   input: Types.CreateMoneySourceInput;
 }>;
 
 
-export type CreateMoneySourceMutation = { __typename?: 'Mutation', createMoneySource: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceMutation', data: { __typename?: 'MoneySource', id: number, name: string, createdAt: any, updatedAt: any } } };
+export type CreateMoneySourceMutation = { __typename?: 'Mutation', createMoneySource: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceMutation', message: Array<string>, data: { __typename?: 'MoneySource', id: number, name: string, value: number, createdAt: any } } };
 
 export type UpdateMoneySourceMutationVariables = Types.Exact<{
   input: Types.UpdateMoneySourceInput;
 }>;
 
 
-export type UpdateMoneySourceMutation = { __typename?: 'Mutation', updateMoneySource: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceMutation', data: { __typename?: 'MoneySource', id: number, name: string, createdAt: any, updatedAt: any } } };
+export type UpdateMoneySourceMutation = { __typename?: 'Mutation', updateMoneySource: { __typename?: 'ErrorOutput', message: Array<string>, statusCode: Types.HttpCode, errors: any } | { __typename?: 'MoneySourceMutation', message: Array<string>, data: { __typename?: 'MoneySource', id: number, name: string, value: number, createdAt: any } } };
 
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: number, description?: string | null, amount: number, createdAt: any, category: { __typename?: 'Category', id: number, name: string }, moneySource: { __typename?: 'MoneySource', id: number, name: string } };
 

@@ -54,3 +54,18 @@ export const handleGraphQLError = (error: unknown, title = "Error", fallbackMess
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ")
 }
+
+export const formatAmount = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount)
+}
+
+export const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })
+}
