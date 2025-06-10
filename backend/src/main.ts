@@ -10,11 +10,9 @@ async function bootstrap() {
     origin: '*', // Allow requests from any domain
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+    allowedHeaders: ['*'],
   });
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(Config.PORT ?? 3001);
 }
 bootstrap();
