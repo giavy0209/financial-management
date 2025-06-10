@@ -5,13 +5,5 @@
     "test",
     "dist",
     "**/*spec.ts"
-  ],
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "src/*": [
-        "src/*"
-      ]
-    }
-  }
+  ]
 }
