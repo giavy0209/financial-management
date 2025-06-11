@@ -3,7 +3,12 @@
 "use client"
 
 import { useSelector } from "react-redux"
+
 import { RootState } from "@/store/store"
+
+/** @format */
+
+/** @format */
 
 export default function Header() {
   const user = useSelector((state: RootState) => state.user.user)
@@ -13,9 +18,13 @@ export default function Header() {
       <div className="h-full px-6 flex items-center justify-end">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-            <span className="text-sm font-medium text-indigo-700">{user?.name?.[0]?.toUpperCase() || "U"}</span>
+            <span className="text-sm font-medium text-indigo-700">
+              {user?.name?.[0]?.toUpperCase() || "U"}
+            </span>
           </div>
-          <span className="text-sm font-medium text-gray-900">{user?.name || "User"}</span>
+          <span className="text-sm font-medium text-gray-900">
+            {user?.name || "User"}
+          </span>
         </div>
       </div>
     </header>

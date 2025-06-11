@@ -3,10 +3,19 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import Sidebar from "./Sidebar"
-import Header from "./Header"
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+import Header from "./Header"
+import Sidebar from "./Sidebar"
+
+/** @format */
+
+/** @format */
+
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const pathname = usePathname()
   const isLoginPage = pathname === "/login"
 

@@ -2,75 +2,131 @@
 
 "use client"
 
-import { memo, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { AppDispatch, RootState } from "@/store/store"
-import { getTransactions, setPage, setPageSize, startEditing } from "@/store/features/transaction/transactionSlice"
+import {
+ useDispatch, useSelector 
+} from "react-redux"
+
+import {
+ memo, useEffect 
+} from "react"
+
 import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
-import { formatAmount, formatDate } from "@/lib/utils"
+import {
+ formatAmount, formatDate 
+} from "@/lib/utils"
+import {
+  getTransactions,
+  setEditingTransaction,
+  setPage,
+  setPageSize,
+} from "@/store/features/transaction/transactionSlice"
+import {
+ AppDispatch, RootState 
+} from "@/store/store"
 
-const PAGE_SIZES = [10, 20, 50]
+/** @format */
+
+/** @format */
+
+const PAGE_SIZES = [
+10,
+20,
+50
+]
 
 const TransactionTable = memo(() => {
   const dispatch = useDispatch<AppDispatch>()
   const {
     transactions,
-    pagination: { page, pageSize, total },
+    pagination: {
+ page, pageSize, total 
+},
     loading,
     filters,
   } = useSelector((state: RootState) => state.transaction)
 
-  useEffect(() => {
-    dispatch(getTransactions({ filter: filters, pagination: { page, pageSize } }))
-  }, [dispatch, page, pageSize, filters])
+  useEffect(
+() => {
+    dispatch(getTransactions({
+ filter: filters,
+pagination: {
+ page,
+pageSize 
+} 
+}),)
+  },
+[
+dispatch,
+page,
+pageSize,
+filters
+]
+)
 
   const onEdit = (transaction: TransactionFieldsFragment) => {
-    dispatch(
-      startEditing({
+    dispatch(setEditingTransaction({
         id: transaction.id,
         description: transaction.description || "",
         amount: transaction.amount,
         category: transaction.category,
         moneySource: transaction.moneySource,
         createdAt: transaction.createdAt,
-      })
-    )
+      }),)
   }
 
   const columns: Column<TransactionFieldsFragment>[] = [
     {
       header: "Description",
       key: "description",
-      render: (transaction) => <div className="text-sm text-gray-900">{transaction.description}</div>,
+      render: (transaction) => (
+        <div className="text-sm text-gray-900">{transaction.description}</div>
+      ),
     },
     {
       header: "Amount",
       key: "amount",
       align: "right",
-      render: (transaction) => <div className="text-sm text-gray-900">{formatAmount(transaction.amount)}</div>,
+      render: (transaction) => (
+        <div className="text-sm text-gray-900">
+          {formatAmount(transaction.amount)}
+        </div>
+      ),
     },
     {
       header: "Category",
       key: "category",
-      render: (transaction) => <div className="text-sm text-gray-900">{transaction.category.name}</div>,
+      render: (transaction) => (
+        <div className="text-sm text-gray-900">{transaction.category.name}</div>
+      ),
     },
     {
       header: "Money Source",
       key: "moneySource",
-      render: (transaction) => <div className="text-sm text-gray-900">{transaction.moneySource.name}</div>,
+      render: (transaction) => (
+        <div className="text-sm text-gray-900">
+          {transaction.moneySource.name}
+        </div>
+      ),
     },
     {
       header: "Created At",
       key: "createdAt",
-      render: (transaction) => <div className="text-sm text-gray-900">{formatDate(transaction.createdAt)}</div>,
+      render: (transaction) => (
+        <div className="text-sm text-gray-900">
+          {formatDate(transaction.createdAt)}
+        </div>
+      ),
     },
     {
       header: "Actions",
       key: "actions",
       align: "right",
       render: (transaction) => (
-        <button onClick={() => onEdit(transaction)} className="text-indigo-600 hover:text-indigo-900">
+        <button
+          onClick={() => onEdit(transaction)}
+          className="text-indigo-600 hover:text-indigo-900"
+        >
           Edit
         </button>
       ),

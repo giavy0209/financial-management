@@ -1,19 +1,19 @@
 /** @format */
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+
 import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
 import {
   CreateMoneySourceMutation,
   CreateMoneySourceMutationVariables,
-  UpdateMoneySourceMutation,
-  UpdateMoneySourceMutationVariables,
   GetMoneySourcesQuery,
   GetMoneySourcesQueryVariables,
   MoneySourceFieldsFragment,
+  UpdateMoneySourceMutation,
+  UpdateMoneySourceMutationVariables,
 } from "@/graphql/queries"
 import { CreateMoneySourceInput, UpdateMoneySourceInput } from "@/graphql/types"
+import { client } from "@/lib/apollo-client"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
 // GraphQL Fragments
@@ -115,11 +115,17 @@ const initialState: MoneySourceState = {
 }
 
 // Async Thunks
-export const getMoneySources = createAsyncThunk<GetMoneySourcesQuery["moneySources"], GetMoneySourcesQueryVariables>(
+export const getMoneySources = createAsyncThunk<
+  GetMoneySourcesQuery["moneySources"],
+  GetMoneySourcesQueryVariables
+>(
   "moneySource/getMoneySources",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.query<GetMoneySourcesQuery, GetMoneySourcesQueryVariables>({
+      const { data } = await client.query<
+        GetMoneySourcesQuery,
+        GetMoneySourcesQueryVariables
+      >({
         query: GET_MONEY_SOURCES,
         variables: input,
       })
@@ -131,14 +137,20 @@ export const getMoneySources = createAsyncThunk<GetMoneySourcesQuery["moneySourc
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
-export const createMoneySource = createAsyncThunk<CreateMoneySourceMutation["createMoneySource"], CreateMoneySourceInput>(
+export const createMoneySource = createAsyncThunk<
+  CreateMoneySourceMutation["createMoneySource"],
+  CreateMoneySourceInput
+>(
   "moneySource/createMoneySource",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.mutate<CreateMoneySourceMutation, CreateMoneySourceMutationVariables>({
+      const { data } = await client.mutate<
+        CreateMoneySourceMutation,
+        CreateMoneySourceMutationVariables
+      >({
         mutation: CREATE_MONEY_SOURCE,
         variables: { input },
         refetchQueries: [{ query: GET_MONEY_SOURCES }],
@@ -152,14 +164,20 @@ export const createMoneySource = createAsyncThunk<CreateMoneySourceMutation["cre
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
-export const updateMoneySource = createAsyncThunk<UpdateMoneySourceMutation["updateMoneySource"], UpdateMoneySourceInput>(
+export const updateMoneySource = createAsyncThunk<
+  UpdateMoneySourceMutation["updateMoneySource"],
+  UpdateMoneySourceInput
+>(
   "moneySource/updateMoneySource",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.mutate<UpdateMoneySourceMutation, UpdateMoneySourceMutationVariables>({
+      const { data } = await client.mutate<
+        UpdateMoneySourceMutation,
+        UpdateMoneySourceMutationVariables
+      >({
         mutation: UPDATE_MONEY_SOURCE,
         variables: { input },
         refetchQueries: [{ query: GET_MONEY_SOURCES }],
@@ -174,7 +192,7 @@ export const updateMoneySource = createAsyncThunk<UpdateMoneySourceMutation["upd
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
 const moneySourceSlice = createSlice({
@@ -242,5 +260,11 @@ const moneySourceSlice = createSlice({
   },
 })
 
-export const { setPage, setPageSize, startEditing, cancelEditing, setNewMoneySource } = moneySourceSlice.actions
+export const {
+  setPage,
+  setPageSize,
+  startEditing,
+  cancelEditing,
+  setNewMoneySource,
+} = moneySourceSlice.actions
 export default moneySourceSlice.reducer

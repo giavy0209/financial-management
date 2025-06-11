@@ -1,13 +1,19 @@
 /** @format */
-
-import { SignupInput, LoginInput } from "@/graphql/types"
-import { SignupMutation, LoginMutation, LoginMutationVariables, SignupMutationVariables, UserFieldsFragment } from "@/graphql/queries"
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { gql } from "@apollo/client"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import Cookies from "js-cookie"
+
+import { ERROR_FRAGMENT } from "@/graphql/fragments"
+import {
+  LoginMutation,
+  LoginMutationVariables,
+  SignupMutation,
+  SignupMutationVariables,
+  UserFieldsFragment,
+} from "@/graphql/queries"
+import { LoginInput, SignupInput } from "@/graphql/types"
 import { client } from "@/lib/apollo-client"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
-import Cookies from "js-cookie"
-import { ERROR_FRAGMENT } from "@/graphql/fragments"
 
 const USER_FRAGMENT = gql`
   fragment UserFields on User {
@@ -78,76 +84,91 @@ const GET_CURRENT_USER_QUERY = gql`
   }
 `
 
-export const signup = createAsyncThunk("user/signup", async (input: SignupInput, { rejectWithValue, fulfillWithValue }) => {
-  try {
-    const { data } = await client.mutate<SignupMutation, SignupMutationVariables>({
-      mutation: SIGNUP_MUTATION,
-      variables: { input },
-    })
-
-    if (!data) throw new Error("No data returned")
-
-    if (data.signup.__typename === "ErrorOutput") {
-      return rejectWithValue(data.signup)
-    }
-    if (data.signup.__typename === "SignupMutation") {
-      return fulfillWithValue(data.signup)
-    }
-  } catch (error) {
-    return rejectWithValue(error)
-  }
-})
-
-export const login = createAsyncThunk("user/login", async (input: LoginInput, { rejectWithValue, fulfillWithValue }) => {
-  try {
-    const { data, errors } = await client.mutate<LoginMutation, LoginMutationVariables>({
-      mutation: LOGIN_MUTATION,
-      variables: { input },
-    })
-
-    if (!data) throw new Error("No data returned")
-    if (Array.isArray(errors) && errors.length > 0) {
-      return rejectWithValue(errors)
-    }
-
-    if (data.login.__typename === "ErrorOutput") {
-      return rejectWithValue(data.login)
-    }
-    if (data.login.__typename === "LoginMutation") {
-      // Store token in cookies
-      Cookies.set("token", data.login.data.token, {
-        expires: 7, // 7 days
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+export const signup = createAsyncThunk(
+  "user/signup",
+  async (input: SignupInput, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await client.mutate<
+        SignupMutation,
+        SignupMutationVariables
+      >({
+        mutation: SIGNUP_MUTATION,
+        variables: { input },
       })
-      return fulfillWithValue(data.login)
+
+      if (!data) throw new Error("No data returned")
+
+      if (data.signup.__typename === "ErrorOutput") {
+        return rejectWithValue(data.signup)
+      }
+      if (data.signup.__typename === "SignupMutation") {
+        return fulfillWithValue(data.signup)
+      }
+    } catch (error) {
+      return rejectWithValue(error)
     }
-  } catch (error) {
-    return rejectWithValue(error)
-  }
-})
+  },
+)
 
-export const getCurrentUser = createAsyncThunk("user/getCurrentUser", async (_, { rejectWithValue, fulfillWithValue }) => {
-  try {
-    const { data } = await client.query({
-      query: GET_CURRENT_USER_QUERY,
-      fetchPolicy: "network-only", // Don't use cache for this query
-    })
+export const login = createAsyncThunk(
+  "user/login",
+  async (input: LoginInput, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data, errors } = await client.mutate<
+        LoginMutation,
+        LoginMutationVariables
+      >({
+        mutation: LOGIN_MUTATION,
+        variables: { input },
+      })
 
-    if (!data) throw new Error("No data returned")
+      if (!data) throw new Error("No data returned")
+      if (Array.isArray(errors) && errors.length > 0) {
+        return rejectWithValue(errors)
+      }
 
-    if (data.me.__typename === "ErrorOutput") {
-      return rejectWithValue(data.me)
+      if (data.login.__typename === "ErrorOutput") {
+        return rejectWithValue(data.login)
+      }
+      if (data.login.__typename === "LoginMutation") {
+        // Store token in cookies
+        Cookies.set("token", data.login.data.token, {
+          expires: 7, // 7 days
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        })
+        return fulfillWithValue(data.login)
+      }
+    } catch (error) {
+      return rejectWithValue(error)
     }
+  },
+)
 
-    if (data.me.__typename === "UserSingle") {
-      return fulfillWithValue(data.me)
+export const getCurrentUser = createAsyncThunk(
+  "user/getCurrentUser",
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await client.query({
+        query: GET_CURRENT_USER_QUERY,
+        fetchPolicy: "network-only", // Don't use cache for this query
+      })
+
+      if (!data) throw new Error("No data returned")
+
+      if (data.me.__typename === "ErrorOutput") {
+        return rejectWithValue(data.me)
+      }
+
+      if (data.me.__typename === "UserSingle") {
+        return fulfillWithValue(data.me)
+      }
+    } catch (error) {
+      return rejectWithValue(error)
     }
-  } catch (error) {
-    return rejectWithValue(error)
-  }
-})
+  },
+)
 
 type UserState = {
   isLoggedIn: boolean
@@ -179,7 +200,11 @@ const userSlice = createSlice({
         }
       })
       .addCase(signup.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Signup failed", "Could not create your account. Please try again")
+        handleGraphQLError(
+          payload,
+          "Signup failed",
+          "Could not create your account. Please try again",
+        )
       })
       .addCase(login.fulfilled, (state, { payload }) => {
         if (payload) {
@@ -191,7 +216,11 @@ const userSlice = createSlice({
       .addCase(login.rejected, (state, { payload }) => {
         state.isLoggedIn = false
         state.user = null
-        handleGraphQLError(payload, "Login failed", "Please check your credentials and try again")
+        handleGraphQLError(
+          payload,
+          "Login failed",
+          "Please check your credentials and try again",
+        )
       })
       .addCase(getCurrentUser.pending, (state) => {
         state.loading = true
@@ -207,7 +236,11 @@ const userSlice = createSlice({
         state.loading = false
         state.isLoggedIn = false
         state.user = null
-        handleGraphQLError(payload, "Failed to fetch user", "Could not get user information")
+        handleGraphQLError(
+          payload,
+          "Failed to fetch user",
+          "Could not get user information",
+        )
       })
   },
 })

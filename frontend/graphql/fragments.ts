@@ -1,5 +1,4 @@
 /** @format */
-
 import { gql } from "@apollo/client"
 
 export const ERROR_FRAGMENT = gql`

@@ -1,9 +1,9 @@
 /** @format */
-
 import { configureStore } from "@reduxjs/toolkit"
-import userReducer from "./features/user/userSlice"
+
 import categoryReducer from "./features/category/categorySlice"
 import transactionReducer from "./features/transaction/transactionSlice"
+import userReducer from "./features/user/userSlice"
 
 export const store = configureStore({
   reducer: {

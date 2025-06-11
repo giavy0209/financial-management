@@ -1,21 +1,26 @@
 /** @format */
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+
 import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
 import {
+  CategoryFieldsFragment,
   CreateCategoryMutation,
   CreateCategoryMutationVariables,
   DeleteCategoryMutation,
   DeleteCategoryMutationVariables,
-  UpdateCategoryMutation,
-  UpdateCategoryMutationVariables,
   GetCategoriesQuery,
   GetCategoriesQueryVariables,
-  CategoryFieldsFragment,
+  UpdateCategoryMutation,
+  UpdateCategoryMutationVariables,
 } from "@/graphql/queries"
-import { CreateCategoryInput, DeleteCategoryInput, PaginationInput, UpdateCategoryInput } from "@/graphql/types"
+import {
+  CreateCategoryInput,
+  DeleteCategoryInput,
+  PaginationInput,
+  UpdateCategoryInput,
+} from "@/graphql/types"
+import { client } from "@/lib/apollo-client"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
 
 // GraphQL Fragments
@@ -133,27 +138,42 @@ const initialState: CategoryState = {
 }
 
 // Async Thunks
-export const getCategories = createAsyncThunk<GetCategoriesQuery["categories"], PaginationInput>("category/getCategories", async (input, { rejectWithValue, fulfillWithValue }) => {
-  try {
-    const { data } = await client.query<GetCategoriesQuery, GetCategoriesQueryVariables>({
-      query: GET_CATEGORIES,
-      variables: { pagination: input },
-    })
+export const getCategories = createAsyncThunk<
+  GetCategoriesQuery["categories"],
+  PaginationInput
+>(
+  "category/getCategories",
+  async (input, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await client.query<
+        GetCategoriesQuery,
+        GetCategoriesQueryVariables
+      >({
+        query: GET_CATEGORIES,
+        variables: { pagination: input },
+      })
 
-    if (data.categories.__typename === "CategoryList") {
-      return fulfillWithValue(data.categories)
+      if (data.categories.__typename === "CategoryList") {
+        return fulfillWithValue(data.categories)
+      }
+      return rejectWithValue(data.categories)
+    } catch (error) {
+      return rejectWithValue(error)
     }
-    return rejectWithValue(data.categories)
-  } catch (error) {
-    return rejectWithValue(error)
-  }
-})
+  },
+)
 
-export const createCategory = createAsyncThunk<CreateCategoryMutation["createCategory"], CreateCategoryInput>(
+export const createCategory = createAsyncThunk<
+  CreateCategoryMutation["createCategory"],
+  CreateCategoryInput
+>(
   "category/createCategory",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.mutate<CreateCategoryMutation, CreateCategoryMutationVariables>({
+      const { data } = await client.mutate<
+        CreateCategoryMutation,
+        CreateCategoryMutationVariables
+      >({
         mutation: CREATE_CATEGORY,
         variables: { input },
         refetchQueries: [{ query: GET_CATEGORIES }],
@@ -167,14 +187,20 @@ export const createCategory = createAsyncThunk<CreateCategoryMutation["createCat
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
-export const updateCategory = createAsyncThunk<UpdateCategoryMutation["updateCategory"], UpdateCategoryInput>(
+export const updateCategory = createAsyncThunk<
+  UpdateCategoryMutation["updateCategory"],
+  UpdateCategoryInput
+>(
   "category/updateCategory",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.mutate<UpdateCategoryMutation, UpdateCategoryMutationVariables>({
+      const { data } = await client.mutate<
+        UpdateCategoryMutation,
+        UpdateCategoryMutationVariables
+      >({
         mutation: UPDATE_CATEGORY,
         variables: { input },
         refetchQueries: [{ query: GET_CATEGORIES }],
@@ -189,14 +215,20 @@ export const updateCategory = createAsyncThunk<UpdateCategoryMutation["updateCat
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
-export const deleteCategory = createAsyncThunk<DeleteCategoryMutation["deleteCategory"], DeleteCategoryInput>(
+export const deleteCategory = createAsyncThunk<
+  DeleteCategoryMutation["deleteCategory"],
+  DeleteCategoryInput
+>(
   "category/deleteCategory",
   async (input, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await client.mutate<DeleteCategoryMutation, DeleteCategoryMutationVariables>({
+      const { data } = await client.mutate<
+        DeleteCategoryMutation,
+        DeleteCategoryMutationVariables
+      >({
         mutation: DELETE_CATEGORY,
         variables: { input },
         refetchQueries: [{ query: GET_CATEGORIES }],
@@ -211,7 +243,7 @@ export const deleteCategory = createAsyncThunk<DeleteCategoryMutation["deleteCat
     } catch (error) {
       return rejectWithValue(error)
     }
-  }
+  },
 )
 
 const categorySlice = createSlice({
@@ -248,7 +280,11 @@ const categorySlice = createSlice({
       })
       .addCase(getCategories.rejected, (state, { payload }) => {
         state.loading = false
-        handleGraphQLError(payload, "Failed to fetch categories", "Could not load categories. Please try again")
+        handleGraphQLError(
+          payload,
+          "Failed to fetch categories",
+          "Could not load categories. Please try again",
+        )
       })
 
     // Create Category
@@ -259,7 +295,11 @@ const categorySlice = createSlice({
         }
       })
       .addCase(createCategory.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Failed to create category", "Could not create category. Please try again")
+        handleGraphQLError(
+          payload,
+          "Failed to create category",
+          "Could not create category. Please try again",
+        )
       })
 
     // Update Category
@@ -271,7 +311,11 @@ const categorySlice = createSlice({
         }
       })
       .addCase(updateCategory.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Failed to update category", "Could not update category. Please try again")
+        handleGraphQLError(
+          payload,
+          "Failed to update category",
+          "Could not update category. Please try again",
+        )
       })
 
     // Delete Category
@@ -282,10 +326,15 @@ const categorySlice = createSlice({
         }
       })
       .addCase(deleteCategory.rejected, (_, { payload }) => {
-        handleGraphQLError(payload, "Failed to delete category", "Could not delete category. Please try again")
+        handleGraphQLError(
+          payload,
+          "Failed to delete category",
+          "Could not delete category. Please try again",
+        )
       })
   },
 })
 
-export const { setPage, setPageSize, startEditing, cancelEditing } = categorySlice.actions
+export const { setPage, setPageSize, startEditing, cancelEditing } =
+  categorySlice.actions
 export default categorySlice.reducer

@@ -4,6 +4,10 @@
 
 import { ReactNode } from "react"
 
+/** @format */
+
+/** @format */
+
 export interface Column<T> {
   header: string
   key: keyof T | "actions"
@@ -25,9 +29,20 @@ export interface TableProps<T> {
   }
 }
 
-export default function Table<T>({ columns, data, loading = false, pagination }: TableProps<T>) {
-  const totalPages = pagination ? Math.ceil(pagination.total / pagination.pageSize) : 0
-  const pageSizeOptions = pagination?.pageSizeOptions || [10, 20, 50]
+export default function Table<T>({
+  columns,
+  data,
+  loading = false,
+  pagination,
+}: TableProps<T>) {
+  const totalPages = pagination
+    ? Math.ceil(pagination.total / pagination.pageSize)
+    : 0
+  const pageSizeOptions = pagination?.pageSizeOptions || [
+10,
+20,
+50
+]
 
   const getCellContent = (item: T, column: Column<T>) => {
     if (column.render) {
@@ -46,7 +61,11 @@ export default function Table<T>({ columns, data, loading = false, pagination }:
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (
-                <th key={String(column.key)} scope="col" className={`px-6 py-3 text-${column.align || "left"} text-xs font-medium text-gray-500 uppercase tracking-wider`}>
+                <th
+                  key={String(column.key)}
+                  scope="col"
+                  className={`px-6 py-3 text-${column.align || "left"} text-xs font-medium text-gray-500 uppercase tracking-wider`}
+                >
                   {column.header}
                 </th>
               ))}
@@ -61,7 +80,10 @@ export default function Table<T>({ columns, data, loading = false, pagination }:
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-4 text-center text-gray-500"
+                >
                   No data found
                 </td>
               </tr>
@@ -72,10 +94,15 @@ export default function Table<T>({ columns, data, loading = false, pagination }:
                     <td
                       key={String(column.key)}
                       className={`px-6 py-4 whitespace-nowrap text-${column.align || "left"} ${
-                        column.key === "actions" ? "text-sm font-medium space-x-2" : "text-sm text-gray-900"
+                        column.key === "actions"
+                          ? "text-sm font-medium space-x-2"
+                          : "text-sm text-gray-900"
                       }`}
                     >
-                      {getCellContent(item, column)}
+                      {getCellContent(
+item,
+column
+)}
                     </td>
                   ))}
                 </tr>
@@ -91,7 +118,9 @@ export default function Table<T>({ columns, data, loading = false, pagination }:
             <span className="mr-2 text-sm text-gray-700">Show</span>
             <select
               value={pagination.pageSize}
-              onChange={(e) => pagination.onPageSizeChange(Number(e.target.value))}
+              onChange={(e) =>
+                pagination.onPageSizeChange(Number(e.target.value))
+              }
               className="rounded-md border-gray-300 py-1 pl-2 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             >
               {pageSizeOptions.map((size) => (

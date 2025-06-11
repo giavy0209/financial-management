@@ -1,18 +1,25 @@
 /** @format */
-
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
-import { client } from "@/lib/apollo-client"
 import { gql } from "@apollo/client"
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+
 import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
-import { CreateTransactionInput, GetTransactionInput, UpdateTransactionInput } from "@/graphql/types"
 import {
   CreateTransactionMutation,
   CreateTransactionMutationVariables,
-  TransactionFieldsFragment,
+  GetTransactionsQuery,
+  GetTransactionsQueryVariables,
   UpdateTransactionMutation,
   UpdateTransactionMutationVariables,
 } from "@/graphql/queries"
+import {
+  CreateTransactionInput,
+  GetTransactionInput,
+  UpdateTransactionInput,
+} from "@/graphql/types"
+import { client } from "@/lib/apollo-client"
 import { handleGraphQLError, handleGraphQLMessage } from "@/lib/utils"
+
+import { EditTransaction, TransactionState } from "./transactionType"
 
 // GraphQL Fragments
 export const TRANSACTION_FIELDS = gql`
@@ -36,7 +43,10 @@ const GET_TRANSACTIONS = gql`
   ${TRANSACTION_FIELDS}
   ${ERROR_FRAGMENT}
   ${PAGINATION_FRAGMENT}
-  query GetTransactions($filter: GetTransactionInput!, $pagination: PaginationInput) {
+  query GetTransactions(
+    $filter: GetTransactionInput!
+    $pagination: PaginationInput
+  ) {
     transactions(filter: $filter, pagination: $pagination) {
       ... on TransactionList {
         message
@@ -93,38 +103,6 @@ const UPDATE_TRANSACTION = gql`
   }
 `
 
-interface TransactionState {
-  transactions: TransactionFieldsFragment[]
-  pagination: {
-    page: number
-    pageSize: number
-    total: number
-  }
-  loading: boolean
-  editingTransaction: {
-    id: number
-    description: string
-    amount: number
-    category: {
-      id: number
-      name: string
-    }
-    moneySource: {
-      id: number
-      name: string
-    }
-    createdAt: string
-  } | null
-  filters: GetTransactionInput
-  newTransaction: {
-    amount: number
-    description: string
-    createdAt: Date
-    categoryId: number
-    moneySourceId: number
-  } | null
-}
-
 const initialState: TransactionState = {
   transactions: [],
   filters: {},
@@ -138,81 +116,90 @@ const initialState: TransactionState = {
   newTransaction: null,
 }
 
-export const getTransactions = createAsyncThunk(
+export const getTransactions = createAsyncThunk<
+  GetTransactionsQuery["transactions"],
+  GetTransactionsQueryVariables
+>(
   "transaction/getTransactions",
-  async ({ filter, pagination }: { filter: GetTransactionInput; pagination: { page: number; pageSize: number } }) => {
-    const response = await client.query({
+  async (
+    variables: GetTransactionsQueryVariables,
+    { rejectWithValue, fulfillWithValue },
+  ) => {
+    const { data } = await client.query<
+      GetTransactionsQuery,
+      GetTransactionsQueryVariables
+    >({
       query: GET_TRANSACTIONS,
-      variables: { filter, pagination },
+      variables,
     })
-    return response.data.transactions
-  }
+
+    if (!data) return rejectWithValue(data)
+    if (data.transactions.__typename === "TransactionList") {
+      return fulfillWithValue(data.transactions)
+    }
+    return rejectWithValue(data.transactions)
+  },
 )
 
-export const createTransaction = createAsyncThunk<CreateTransactionMutation["createTransaction"], CreateTransactionInput>(
-  "transaction/createTransaction",
-  async (input, { rejectWithValue }) => {
-    const response = await client.mutate<CreateTransactionMutation, CreateTransactionMutationVariables>({
-      mutation: CREATE_TRANSACTION,
+export const createTransaction = createAsyncThunk<
+  CreateTransactionMutation["createTransaction"],
+  CreateTransactionInput
+>("transaction/createTransaction", async (input, { rejectWithValue }) => {
+  const response = await client.mutate<
+    CreateTransactionMutation,
+    CreateTransactionMutationVariables
+  >({
+    mutation: CREATE_TRANSACTION,
+    variables: { input },
+  })
+  if (response.data?.createTransaction.__typename === "TransactionMutation") {
+    return response.data.createTransaction
+  }
+  return rejectWithValue(response.data?.createTransaction)
+})
+
+export const updateTransaction = createAsyncThunk<
+  UpdateTransactionMutation["updateTransaction"],
+  UpdateTransactionInput
+>("transaction/updateTransaction", async (input, { rejectWithValue }) => {
+  try {
+    const { data } = await client.mutate<
+      UpdateTransactionMutation,
+      UpdateTransactionMutationVariables
+    >({
+      mutation: UPDATE_TRANSACTION,
       variables: { input },
     })
-    if (response.data?.createTransaction.__typename === "TransactionMutation") {
-      return response.data.createTransaction
+    if (!data) return rejectWithValue(data)
+    if (data?.updateTransaction.__typename === "TransactionMutation") {
+      return data.updateTransaction
     }
-    return rejectWithValue(response.data?.createTransaction)
+    return rejectWithValue(data?.updateTransaction)
+  } catch (error) {
+    return rejectWithValue(error)
   }
-)
-
-export const updateTransaction = createAsyncThunk<UpdateTransactionMutation["updateTransaction"], UpdateTransactionInput>(
-  "transaction/updateTransaction",
-  async (input, { rejectWithValue }) => {
-    try {
-      const { data } = await client.mutate<UpdateTransactionMutation, UpdateTransactionMutationVariables>({
-        mutation: UPDATE_TRANSACTION,
-        variables: { input },
-      })
-      if (!data) return rejectWithValue(data)
-      if (data?.updateTransaction.__typename === "TransactionMutation") {
-        return data.updateTransaction
-      }
-      return rejectWithValue(data?.updateTransaction)
-    } catch (error) {
-      return rejectWithValue(error)
-    }
-  }
-)
+})
 
 const transactionSlice = createSlice({
   name: "transaction",
   initialState,
   reducers: {
-    setPage: (state, action) => {
+    setPage: (state, action: PayloadAction<number>) => {
       state.pagination.page = action.payload
     },
-    setPageSize: (state, action) => {
+    setPageSize: (state, action: PayloadAction<number>) => {
       state.pagination.pageSize = action.payload
-      state.pagination.page = 1 // Reset to first page when changing page size
+      state.pagination.page = 1
     },
-    startEditing: (
+    setEditingTransaction: (
       state,
-      action: PayloadAction<{
-        id: number
-        description: string
-        amount: number
-        category: { id: number; name: string }
-        moneySource: { id: number; name: string }
-        createdAt: string
-      }>
+      action: PayloadAction<EditTransaction | null>,
     ) => {
-      const { id, description, amount, category, moneySource, createdAt } = action.payload
-      state.editingTransaction = { id, description, amount, category, moneySource, createdAt }
+      state.editingTransaction = action.payload
     },
-    cancelEditing: (state) => {
-      state.editingTransaction = null
-    },
-    setFilters: (state, action) => {
+    setFilters: (state, action: PayloadAction<GetTransactionInput>) => {
       state.filters = action.payload
-      state.pagination.page = 1 // Reset to first page when filters change
+      state.pagination.page = 1
     },
     clearFilters: (state) => {
       state.filters = {}
@@ -223,10 +210,10 @@ const transactionSlice = createSlice({
       action: PayloadAction<{
         amount: number
         description: string
-        createdAt: Date
+        createdAt: string
         categoryId: number
         moneySourceId: number
-      } | null>
+      } | null>,
     ) => {
       state.newTransaction = action.payload
     },
@@ -237,7 +224,7 @@ const transactionSlice = createSlice({
         state.loading = true
       })
       .addCase(getTransactions.fulfilled, (state, action) => {
-        if (action.payload.data) {
+        if (action.payload.__typename === "TransactionList") {
           state.transactions = action.payload.data
           state.pagination.total = action.payload.pagination.total
         }
@@ -268,5 +255,12 @@ const transactionSlice = createSlice({
   },
 })
 
-export const { setPage, setPageSize, startEditing, cancelEditing, setFilters, clearFilters, setNewTransaction } = transactionSlice.actions
+export const {
+  setPage,
+  setPageSize,
+  setEditingTransaction,
+  setFilters,
+  clearFilters,
+  setNewTransaction,
+} = transactionSlice.actions
 export default transactionSlice.reducer

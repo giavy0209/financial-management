@@ -1,7 +1,7 @@
 /** @format */
+import { toast } from "sonner"
 
 import { ErrorOutput } from "@/graphql/types"
-import { toast } from "sonner"
 
 type GraphQLResponse = {
   message: string[] | string
@@ -13,42 +13,62 @@ export const handleGraphQLMessage = (response: unknown) => {
 
   const gqlResponse = response as GraphQLResponse
   if ("message" in gqlResponse) {
-    const message = Array.isArray(gqlResponse.message) ? gqlResponse.message.join(", ") : gqlResponse.message
+    const message = Array.isArray(gqlResponse.message)
+      ? gqlResponse.message.join(", ")
+      : gqlResponse.message
 
     toast.success(message)
   }
 }
 
-export const handleGraphQLError = (error: unknown, title = "Error", fallbackMessage = "An unexpected error occurred") => {
+export const handleGraphQLError = (
+  error: unknown,
+  title = "Error",
+  fallbackMessage = "An unexpected error occurred",
+) => {
   if (!error) {
-    toast.error(title, {
+    toast.error(
+title,
+{
       description: fallbackMessage,
-    })
+    }
+)
     return
   }
 
   // Handle GraphQL ErrorOutput type
   if (typeof error === "object" && error !== null && "message" in error) {
-    const message = Array.isArray((error as ErrorOutput).message) ? (error as ErrorOutput).message.join(", ") : (error as { message: string }).message
+    const message = Array.isArray((error as ErrorOutput).message)
+      ? (error as ErrorOutput).message.join(", ")
+      : (error as { message: string }).message
 
-    toast.error(title, {
+    toast.error(
+title,
+{
       description: message,
-    })
+    }
+)
     return
   }
 
   // Handle Error instance
   if (error instanceof Error) {
-    toast.error(title, {
+    toast.error(
+title,
+{
       description: error.message,
-    })
+    }
+)
     return
   }
 
   // Fallback for unknown error types
-  toast.error(title, {
+  toast.error(
+title,
+{
     description: fallbackMessage,
-  })
+  }
+)
 }
 
 export function classNames(...classes: string[]) {
@@ -56,16 +76,22 @@ export function classNames(...classes: string[]) {
 }
 
 export const formatAmount = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(
+"en-US",
+{
     style: "currency",
     currency: "VND",
-  }).format(amount)
+  }
+).format(amount)
 }
 
 export const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString(
+"en-US",
+{
     year: "numeric",
     month: "short",
     day: "numeric",
-  })
+  }
+)
 }

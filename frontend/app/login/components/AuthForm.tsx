@@ -2,17 +2,38 @@
 
 "use client"
 
-import { useState } from "react"
 import { useDispatch } from "react-redux"
-import { signup, login } from "@/store/features/user/userSlice"
-import { AppDispatch } from "@/store/store"
+
+import { useState } from "react"
+
 import { useRouter } from "next/navigation"
 
+import {
+ login, signup 
+} from "@/store/features/user/userSlice"
+import { AppDispatch } from "@/store/store"
+
+/** @format */
+
+/** @format */
+
 export default function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [username, setUsername] = useState("")
+  const [
+isLogin,
+setIsLogin
+] = useState(true)
+  const [
+email,
+setEmail
+] = useState("")
+  const [
+password,
+setPassword
+] = useState("")
+  const [
+username,
+setUsername
+] = useState("")
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
 
@@ -20,12 +41,19 @@ export default function AuthForm() {
     e.preventDefault()
 
     if (isLogin) {
-      const result = await dispatch(login({ email, password }))
+      const result = await dispatch(login({
+ email,
+password 
+}))
       if (login.fulfilled.match(result)) {
         router.push("/")
       }
     } else {
-      const result = await dispatch(signup({ email, password, name: username }))
+      const result = await dispatch(signup({
+ email,
+password,
+name: username 
+}))
       if (signup.fulfilled.match(result)) {
         setIsLogin(true)
         setEmail("")
@@ -39,7 +67,9 @@ export default function AuthForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">{isLogin ? "Sign in to your account" : "Create a new account"}</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            {isLogin ? "Sign in to your account" : "Create a new account"}
+          </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
@@ -114,7 +144,9 @@ export default function AuthForm() {
               }}
               className="text-sm text-indigo-600 hover:text-indigo-500"
             >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin
+                ? "Need an account? Sign up"
+                : "Already have an account? Sign in"}
             </button>
           </div>
         </form>

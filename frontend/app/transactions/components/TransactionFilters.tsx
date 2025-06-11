@@ -2,16 +2,42 @@
 
 "use client"
 
-import { Fragment, memo } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { AppDispatch, RootState } from "@/store/store"
-import { setFilters, clearFilters } from "@/store/features/transaction/transactionSlice"
-import { Popover, PopoverButton, PopoverPanel, Transition } from "@headlessui/react"
+import {
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from "@headlessui/react"
 import { FunnelIcon } from "@heroicons/react/24/outline"
+import {
+ useDispatch, useSelector 
+} from "react-redux"
+
+import {
+ Fragment, memo 
+} from "react"
+
+import {
+  clearFilters,
+  setFilters,
+} from "@/store/features/transaction/transactionSlice"
+import {
+ AppDispatch, RootState 
+} from "@/store/store"
+
 import CategorySelect from "./CategorySelect"
 
+/** @format */
+
+/** @format */
+
 type FilterValue = number | string
-type FilterKey = "categoryId" | "fromAmount" | "toAmount" | "fromDate" | "toDate"
+type FilterKey =
+  | "categoryId"
+  | "fromAmount"
+  | "toAmount"
+  | "fromDate"
+  | "toDate"
 
 const TransactionFilters = memo(() => {
   const dispatch = useDispatch<AppDispatch>()
@@ -20,16 +46,28 @@ const TransactionFilters = memo(() => {
   const handleFilterChange = (key: FilterKey, value: FilterValue) => {
     const newFilters = {
       ...filters,
-      [key]: value === "" || (key === "categoryId" && value === 0) ? undefined : value,
+      [key]:
+        value === "" || (key === "categoryId" && value === 0)
+          ? undefined
+          : value,
     }
 
     // Remove undefined values
-    const cleanFilters = Object.entries(newFilters).reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        return { ...acc, [key]: value }
-      }
-      return acc
-    }, {})
+    const cleanFilters = Object.entries(newFilters).reduce(
+      (acc, [
+key,
+value
+]) => {
+        if (value !== undefined) {
+          return {
+ ...acc,
+[key]: value 
+}
+        }
+        return acc
+      },
+      {},
+    )
 
     dispatch(setFilters(cleanFilters))
   }
@@ -41,14 +79,22 @@ const TransactionFilters = memo(() => {
     <Popover className="relative">
       <PopoverButton
         className={`inline-flex items-center justify-center rounded-md border ${
-          hasActiveFilters ? "border-indigo-600 bg-indigo-50" : "border-gray-300 bg-white"
+          hasActiveFilters
+            ? "border-indigo-600 bg-indigo-50"
+            : "border-gray-300 bg-white"
         } px-4 py-2 text-sm font-medium ${
           hasActiveFilters ? "text-indigo-700" : "text-gray-700"
         } shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
       >
-        <FunnelIcon className={`-ml-1 mr-2 h-5 w-5 ${hasActiveFilters ? "text-indigo-600" : "text-gray-400"}`} />
+        <FunnelIcon
+          className={`-ml-1 mr-2 h-5 w-5 ${hasActiveFilters ? "text-indigo-600" : "text-gray-400"}`}
+        />
         Filters
-        {hasActiveFilters && <span className="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800">Active</span>}
+        {hasActiveFilters && (
+          <span className="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800">
+            Active
+          </span>
+        )}
       </PopoverButton>
 
       <Transition
@@ -65,28 +111,52 @@ const TransactionFilters = memo(() => {
             <div className="relative bg-white p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <CategorySelect value={filters.categoryId || 0} onChange={(value) => handleFilterChange("categoryId", value)} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category
+                  </label>
+                  <CategorySelect
+                    value={filters.categoryId || 0}
+                    onChange={(value) =>
+                      handleFilterChange(
+"categoryId",
+value
+)
+                    }
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">From Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      From Amount
+                    </label>
                     <input
                       type="number"
                       value={filters.fromAmount || ""}
-                      onChange={(e) => handleFilterChange("fromAmount", e.target.value ? parseFloat(e.target.value) : "")}
+                      onChange={(e) =>
+                        handleFilterChange(
+                          "fromAmount",
+                          e.target.value ? parseFloat(e.target.value) : "",
+                        )
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       placeholder="Min"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">To Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      To Amount
+                    </label>
                     <input
                       type="number"
                       value={filters.toAmount || ""}
-                      onChange={(e) => handleFilterChange("toAmount", e.target.value ? parseFloat(e.target.value) : "")}
+                      onChange={(e) =>
+                        handleFilterChange(
+                          "toAmount",
+                          e.target.value ? parseFloat(e.target.value) : "",
+                        )
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       placeholder="Max"
                     />
@@ -95,21 +165,35 @@ const TransactionFilters = memo(() => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      From Date
+                    </label>
                     <input
                       type="date"
                       value={filters.fromDate || ""}
-                      onChange={(e) => handleFilterChange("fromDate", e.target.value)}
+                      onChange={(e) =>
+                        handleFilterChange(
+"fromDate",
+e.target.value
+)
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      To Date
+                    </label>
                     <input
                       type="date"
                       value={filters.toDate || ""}
-                      onChange={(e) => handleFilterChange("toDate", e.target.value)}
+                      onChange={(e) =>
+                        handleFilterChange(
+"toDate",
+e.target.value
+)
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>

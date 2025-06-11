@@ -1,6 +1,6 @@
 /** @format */
-
 import { ButtonHTMLAttributes } from "react"
+
 import { classNames } from "@/lib/utils"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,12 +9,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean
 }
 
-export default function Button({ children, variant = "primary", size = "sm", fullWidth = false, className = "", ...props }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2"
+export default function Button({
+  children,
+  variant = "primary",
+  size = "sm",
+  fullWidth = false,
+  className = "",
+  ...props
+}: ButtonProps) {
+  const baseStyles =
+    "inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2"
 
   const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
-    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-indigo-500",
+    primary:
+      "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
+    secondary:
+      "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-indigo-500",
   }
 
   const sizes = {
@@ -26,7 +36,16 @@ export default function Button({ children, variant = "primary", size = "sm", ful
   const width = fullWidth ? "w-full" : ""
 
   return (
-    <button className={classNames(baseStyles, variants[variant], sizes[size], width, className)} {...props}>
+    <button
+      className={classNames(
+        baseStyles,
+        variants[variant],
+        sizes[size],
+        width,
+        className,
+      )}
+      {...props}
+    >
       {children}
     </button>
   )

@@ -12,7 +12,15 @@ type ConfirmModalProps = {
   cancelButtonText?: string
 }
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmButtonText = "Delete", cancelButtonText = "Cancel" }: ConfirmModalProps) {
+export default function ConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmButtonText = "Delete",
+  cancelButtonText = "Cancel",
+}: ConfirmModalProps) {
   if (!isOpen) return null
 
   return (
