@@ -2,9 +2,7 @@
 
 "use client"
 
-import {
- useDispatch, useSelector 
-} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
 import { useEffect } from "react"
 
@@ -19,84 +17,79 @@ import {
   startEditing,
   updateCategory,
 } from "@/store/features/category/categorySlice"
-import {
- AppDispatch, RootState 
-} from "@/store/store"
+import { AppDispatch, RootState } from "@/store/store"
 
 /** @format */
 
 /** @format */
 
-const PAGE_SIZES = [
-10,
-20,
-50
-]
+/** @format */
+
+/** @format */
+
+const PAGE_SIZES = [10, 20, 50]
 
 export default function CategoryTable() {
   const dispatch = useDispatch<AppDispatch>()
   const {
     categories,
-    pagination: {
- page, pageSize, total 
-},
+    pagination: { page, pageSize, total },
     loading,
     editingCategory,
   } = useSelector((state: RootState) => state.category)
 
-  useEffect(
-() => {
-    dispatch(getCategories({
- page,
-pageSize 
-}))
-  },
-[
-dispatch,
-page,
-pageSize
-]
-)
+  useEffect(() => {
+    dispatch(
+      getCategories({
+        page,
+        pageSize,
+      }),
+    )
+  }, [dispatch, page, pageSize])
 
   const handleEdit = (id: number, name: string) => {
-    dispatch(startEditing({
- id,
-name 
-}))
+    dispatch(
+      startEditing({
+        id,
+        name,
+      }),
+    )
   }
 
   const handleSave = async (id: number) => {
     try {
-      await dispatch(updateCategory({
- id,
-name: editingCategory.name 
-}),).unwrap()
-      dispatch(getCategories({
- page,
-pageSize 
-}))
+      await dispatch(
+        updateCategory({
+          id,
+          name: editingCategory.name,
+        }),
+      ).unwrap()
+      dispatch(
+        getCategories({
+          page,
+          pageSize,
+        }),
+      )
     } catch (error: unknown) {
-      console.error(
-"Failed to update category:",
-error
-)
+      console.error("Failed to update category:", error)
     }
   }
 
   const handleDelete = async (id: number) => {
     try {
-      await dispatch(deleteCategory({
- id 
-})).unwrap()
-      dispatch(getCategories({
- page,
-pageSize 
-}))
+      await dispatch(
+        deleteCategory({
+          id,
+        }),
+      ).unwrap()
+      dispatch(
+        getCategories({
+          page,
+          pageSize,
+        }),
+      )
     } catch (error: unknown) {
-      console.error(
-"Failed to delete category:",
-error
-)
+      console.error("Failed to delete category:", error)
     }
   }
 
@@ -110,10 +103,12 @@ error
             type="text"
             value={editingCategory.name}
             onChange={(e) =>
-              dispatch(startEditing({
- id: category.id,
-name: e.target.value 
-}))
+              dispatch(
+                startEditing({
+                  id: category.id,
+                  name: e.target.value,
+                }),
+              )
             }
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
@@ -144,10 +139,7 @@ name: e.target.value
         ) : (
           <>
             <button
-              onClick={() => handleEdit(
-category.id,
-category.name
-)}
+              onClick={() => handleEdit(category.id, category.name)}
               className="text-indigo-600 hover:text-indigo-900"
             >
               Edit

@@ -2,77 +2,63 @@
 
 "use client"
 
-import {
- useDispatch, useSelector 
-} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
-import {
- memo, useEffect 
-} from "react"
+import { memo, useEffect } from "react"
 
 import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
-import {
- formatAmount, formatDate 
-} from "@/lib/utils"
+import { formatAmount, formatDate } from "@/lib/utils"
 import {
   getTransactions,
   setEditingTransaction,
   setPage,
   setPageSize,
 } from "@/store/features/transaction/transactionSlice"
-import {
- AppDispatch, RootState 
-} from "@/store/store"
+import { AppDispatch, RootState } from "@/store/store"
 
 /** @format */
 
 /** @format */
 
-const PAGE_SIZES = [
-10,
-20,
-50
-]
+/** @format */
+
+/** @format */
+
+const PAGE_SIZES = [10, 20, 50]
 
 const TransactionTable = memo(() => {
   const dispatch = useDispatch<AppDispatch>()
   const {
     transactions,
-    pagination: {
- page, pageSize, total 
-},
+    pagination: { page, pageSize, total },
     loading,
     filters,
   } = useSelector((state: RootState) => state.transaction)
 
-  useEffect(
-() => {
-    dispatch(getTransactions({
- filter: filters,
-pagination: {
- page,
-pageSize 
-} 
-}),)
-  },
-[
-dispatch,
-page,
-pageSize,
-filters
-]
-)
+  useEffect(() => {
+    dispatch(
+      getTransactions({
+        filter: filters,
+        pagination: {
+          page,
+          pageSize,
+        },
+      }),
+    )
+  }, [dispatch, page, pageSize, filters])
 
   const onEdit = (transaction: TransactionFieldsFragment) => {
-    dispatch(setEditingTransaction({
+    dispatch(
+      setEditingTransaction({
         id: transaction.id,
         description: transaction.description || "",
         amount: transaction.amount,
         category: transaction.category,
         moneySource: transaction.moneySource,
         createdAt: transaction.createdAt,
-      }),)
+      }),
+    )
   }
 
   const columns: Column<TransactionFieldsFragment>[] = [

@@ -2,19 +2,17 @@
 
 "use client"
 
-import {
- useDispatch, useSelector 
-} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
-import {
- useEffect, useRef, useState 
-} from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { CategoryFieldsFragment } from "@/graphql/queries"
 import { getCategories } from "@/store/features/category/categorySlice"
-import {
- AppDispatch, RootState 
-} from "@/store/store"
+import { AppDispatch, RootState } from "@/store/store"
+
+/** @format */
+
+/** @format */
 
 /** @format */
 
@@ -30,38 +28,26 @@ export default function CategorySelect({
   onChange,
 }: CategorySelectProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const [
-page,
-setPage
-] = useState(1)
-  const [
-isOpen,
-setIsOpen
-] = useState(false)
+  const [page, setPage] = useState(1)
+  const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const pageSize = 10
 
-  const {
- categories, pagination, loading 
-} = useSelector((state: RootState) => state.category,)
+  const { categories, pagination, loading } = useSelector(
+    (state: RootState) => state.category,
+  )
   const selectedCategory = categories.find((cat) => cat.id === value)
 
-  useEffect(
-() => {
-    dispatch(getCategories({
- page,
-pageSize 
-}))
-  },
-[
-dispatch,
-page,
-pageSize
-]
-)
+  useEffect(() => {
+    dispatch(
+      getCategories({
+        page,
+        pageSize,
+      }),
+    )
+  }, [dispatch, page, pageSize])
 
-  useEffect(
-() => {
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
         dropdownRef.current &&
@@ -71,17 +57,9 @@ pageSize
       }
     }
 
-    document.addEventListener(
-"mousedown",
-handleClickOutside
-)
-    return () => document.removeEventListener(
-"mousedown",
-handleClickOutside
-)
-  },
-[]
-)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const bottom =
@@ -93,7 +71,10 @@ handleClickOutside
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div
+      className="relative"
+      ref={dropdownRef}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

@@ -1,7 +1,5 @@
 /** @format */
-import {
- ApolloClient, InMemoryCache, createHttpLink 
-} from "@apollo/client"
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 import Cookies from "js-cookie"
 
@@ -12,9 +10,7 @@ const httpLink = createHttpLink({
 })
 
 // Auth link middleware to add token to headers
-const authLink = setContext((_, {
- headers 
-}) => {
+const authLink = setContext((_, { headers }) => {
   // Get the token from cookies
   const token = Cookies.get("token")
 

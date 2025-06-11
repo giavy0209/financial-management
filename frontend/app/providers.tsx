@@ -12,9 +12,11 @@ import { store } from "@/store/store"
 
 /** @format */
 
-export function Providers({
- children 
-}: { children: React.ReactNode }) {
+/** @format */
+
+/** @format */
+
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
       <ApolloProvider client={client}>{children}</ApolloProvider>

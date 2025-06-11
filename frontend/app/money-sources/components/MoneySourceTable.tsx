@@ -1,10 +1,6 @@
-/** @format */
-
 "use client"
 
-import {
- memo, useEffect 
-} from "react"
+import { memo, useEffect } from "react"
 
 import Table, { Column } from "@/app/components/Table"
 import { MoneySourceFieldsFragment } from "@/graphql/queries"
@@ -17,78 +13,64 @@ import {
   startEditing,
   updateMoneySource,
 } from "@/store/features/moneySource/moneySourceSlice"
-import {
- useAppDispatch, useAppSelector 
-} from "@/store/hooks"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { RootState } from "@/store/store"
 
-/** @format */
-
-/** @format */
-
-const PAGE_SIZES = [
-10,
-20,
-50
-]
+const PAGE_SIZES = [10, 20, 50]
 
 const MoneySourceTable = memo(() => {
   const dispatch = useAppDispatch()
   const {
     moneySources,
-    pagination: {
- page, pageSize, total 
-},
+    pagination: { page, pageSize, total },
     loading,
     editingMoneySource,
   } = useAppSelector((state: RootState) => state.moneySource)
 
-  useEffect(
-() => {
-    dispatch(getMoneySources({
- pagination: {
- page,
-pageSize 
-} 
-}))
-  },
-[
-dispatch,
-page,
-pageSize
-]
-)
+  useEffect(() => {
+    dispatch(
+      getMoneySources({
+        pagination: {
+          page,
+          pageSize,
+        },
+      }),
+    )
+  }, [dispatch, page, pageSize])
 
   const handleEdit = (id: number, name: string) => {
-    dispatch(startEditing({
- id,
-name 
-}))
+    dispatch(
+      startEditing({
+        id,
+        name,
+      }),
+    )
   }
 
   const handleSave = async (id: number) => {
     if (!editingMoneySource) return
-    await dispatch(updateMoneySource({
+    await dispatch(
+      updateMoneySource({
         id,
         name: editingMoneySource.name,
-      }),).unwrap()
-    dispatch(getMoneySources({
- pagination: {
- page,
-pageSize 
-} 
-}))
+      }),
+    ).unwrap()
+    dispatch(
+      getMoneySources({
+        pagination: {
+          page,
+          pageSize,
+        },
+      }),
+    )
   }
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString(
-"en-US",
-{
+    return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    }
-)
+    })
   }
 
   const columns: Column<MoneySourceFieldsFragment>[] = [
@@ -101,10 +83,12 @@ pageSize
             type="text"
             value={editingMoneySource?.name}
             onChange={(e) =>
-              dispatch(startEditing({
- ...editingMoneySource,
-name: e.target.value 
-}),)
+              dispatch(
+                startEditing({
+                  ...editingMoneySource,
+                  name: e.target.value,
+                }),
+              )
             }
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
@@ -153,10 +137,7 @@ name: e.target.value
         ) : (
           <>
             <button
-              onClick={() => handleEdit(
-moneySource.id,
-moneySource.name
-)}
+              onClick={() => handleEdit(moneySource.id, moneySource.name)}
               className="text-indigo-600 hover:text-indigo-900"
             >
               Edit

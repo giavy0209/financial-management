@@ -54,6 +54,10 @@ import TransactionTable from "./components/TransactionTable"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export default function TransactionsPage() {
   const dispatch = useDispatch<AppDispatch>()
   const { editingTransaction, newTransaction, loading } = useAppSelector(

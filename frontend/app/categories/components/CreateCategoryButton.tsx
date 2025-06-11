@@ -19,20 +19,15 @@ import { AppDispatch } from "@/store/store"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export default function CreateCategoryButton() {
   const dispatch = useDispatch<AppDispatch>()
-  const [
-isModalOpen,
-setIsModalOpen
-] = useState(false)
-  const [
-isSubmitting,
-setIsSubmitting
-] = useState(false)
-  const [
-newCategory,
-setNewCategory
-] = useState({
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [newCategory, setNewCategory] = useState({
     name: "",
   })
 
@@ -44,15 +39,14 @@ setNewCategory
       setNewCategory({
         name: "",
       })
-      dispatch(getCategories({
- page: 1,
-pageSize: 10 
-}))
+      dispatch(
+        getCategories({
+          page: 1,
+          pageSize: 10,
+        }),
+      )
     } catch (error) {
-      console.error(
-"Failed to create category:",
-error
-)
+      console.error("Failed to create category:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -75,9 +69,9 @@ error
           value={newCategory.name}
           onChange={(value) =>
             setNewCategory({
- ...newCategory,
-name: value.toString() 
-})
+              ...newCategory,
+              name: value.toString(),
+            })
           }
           required
         />

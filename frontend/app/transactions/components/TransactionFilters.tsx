@@ -9,23 +9,21 @@ import {
   Transition,
 } from "@headlessui/react"
 import { FunnelIcon } from "@heroicons/react/24/outline"
-import {
- useDispatch, useSelector 
-} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
-import {
- Fragment, memo 
-} from "react"
+import { Fragment, memo } from "react"
 
 import {
   clearFilters,
   setFilters,
 } from "@/store/features/transaction/transactionSlice"
-import {
- AppDispatch, RootState 
-} from "@/store/store"
+import { AppDispatch, RootState } from "@/store/store"
 
 import CategorySelect from "./CategorySelect"
+
+/** @format */
+
+/** @format */
 
 /** @format */
 
@@ -54,15 +52,12 @@ const TransactionFilters = memo(() => {
 
     // Remove undefined values
     const cleanFilters = Object.entries(newFilters).reduce(
-      (acc, [
-key,
-value
-]) => {
+      (acc, [key, value]) => {
         if (value !== undefined) {
           return {
- ...acc,
-[key]: value 
-}
+            ...acc,
+            [key]: value,
+          }
         }
         return acc
       },
@@ -117,10 +112,7 @@ value
                   <CategorySelect
                     value={filters.categoryId || 0}
                     onChange={(value) =>
-                      handleFilterChange(
-"categoryId",
-value
-)
+                      handleFilterChange("categoryId", value)
                     }
                   />
                 </div>
@@ -172,10 +164,7 @@ value
                       type="date"
                       value={filters.fromDate || ""}
                       onChange={(e) =>
-                        handleFilterChange(
-"fromDate",
-e.target.value
-)
+                        handleFilterChange("fromDate", e.target.value)
                       }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
@@ -189,10 +178,7 @@ e.target.value
                       type="date"
                       value={filters.toDate || ""}
                       onChange={(e) =>
-                        handleFilterChange(
-"toDate",
-e.target.value
-)
+                        handleFilterChange("toDate", e.target.value)
                       }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />

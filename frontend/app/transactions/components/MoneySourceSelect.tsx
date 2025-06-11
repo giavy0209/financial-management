@@ -2,19 +2,17 @@
 
 "use client"
 
-import {
- useDispatch, useSelector 
-} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
-import {
- useEffect, useRef, useState 
-} from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { MoneySourceFieldsFragment } from "@/graphql/queries"
 import { getMoneySources } from "@/store/features/moneySource/moneySourceSlice"
-import {
- AppDispatch, RootState 
-} from "@/store/store"
+import { AppDispatch, RootState } from "@/store/store"
+
+/** @format */
+
+/** @format */
 
 /** @format */
 
@@ -30,40 +28,28 @@ export default function MoneySourceSelect({
   onChange,
 }: MoneySourceSelectProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const [
-page,
-setPage
-] = useState(1)
-  const [
-isOpen,
-setIsOpen
-] = useState(false)
+  const [page, setPage] = useState(1)
+  const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const pageSize = 10
 
-  const {
- moneySources, pagination, loading 
-} = useSelector((state: RootState) => state.moneySource,)
+  const { moneySources, pagination, loading } = useSelector(
+    (state: RootState) => state.moneySource,
+  )
   const selectedMoneySource = moneySources.find((ms) => ms.id === value)
 
-  useEffect(
-() => {
-    dispatch(getMoneySources({
- pagination: {
- page,
-pageSize 
-} 
-}))
-  },
-[
-dispatch,
-page,
-pageSize
-]
-)
+  useEffect(() => {
+    dispatch(
+      getMoneySources({
+        pagination: {
+          page,
+          pageSize,
+        },
+      }),
+    )
+  }, [dispatch, page, pageSize])
 
-  useEffect(
-() => {
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
         dropdownRef.current &&
@@ -73,17 +59,9 @@ pageSize
       }
     }
 
-    document.addEventListener(
-"mousedown",
-handleClickOutside
-)
-    return () => document.removeEventListener(
-"mousedown",
-handleClickOutside
-)
-  },
-[]
-)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const bottom =
@@ -95,7 +73,10 @@ handleClickOutside
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div
+      className="relative"
+      ref={dropdownRef}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

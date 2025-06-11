@@ -39,14 +39,20 @@ export default function FormTextArea({
   const renderHelperText = () => {
     if (error) {
       return (
-        <p className="mt-2 text-sm text-red-600" id={`${id}-error`}>
+        <p
+          className="mt-2 text-sm text-red-600"
+          id={`${id}-error`}
+        >
           {error}
         </p>
       )
     }
     if (helperText) {
       return (
-        <p className="mt-2 text-sm text-gray-500" id={`${id}-description`}>
+        <p
+          className="mt-2 text-sm text-gray-500"
+          id={`${id}-description`}
+        >
           {helperText}
         </p>
       )
@@ -56,7 +62,10 @@ export default function FormTextArea({
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700"
+      >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>

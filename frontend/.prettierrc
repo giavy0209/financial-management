@@ -19,9 +19,5 @@
   ],
   "importOrder": ["^react$", "^next/(.*)$", "^@/(.*)$", "^[./]"],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "breakBeforeElse": true,
-  "breakLongMethodChains": true,
-  "arrayParens": "always",
-  "objectCurlyNewline": true
+  "importOrderSortSpecifiers": true
 }

@@ -26,7 +26,11 @@ export default function FormModal({
   isSubmitting = false,
 }: FormModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+    >
       <div className="space-y-4">{children}</div>
       <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
         <Button

@@ -8,6 +8,10 @@ import { ReactNode } from "react"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export interface Column<T> {
   header: string
   key: keyof T | "actions"
@@ -38,11 +42,7 @@ export default function Table<T>({
   const totalPages = pagination
     ? Math.ceil(pagination.total / pagination.pageSize)
     : 0
-  const pageSizeOptions = pagination?.pageSizeOptions || [
-10,
-20,
-50
-]
+  const pageSizeOptions = pagination?.pageSizeOptions || [10, 20, 50]
 
   const getCellContent = (item: T, column: Column<T>) => {
     if (column.render) {
@@ -74,7 +74,10 @@ export default function Table<T>({
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-4 text-center">
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-4 text-center"
+                >
                   Loading...
                 </td>
               </tr>
@@ -99,10 +102,7 @@ export default function Table<T>({
                           : "text-sm text-gray-900"
                       }`}
                     >
-                      {getCellContent(
-item,
-column
-)}
+                      {getCellContent(item, column)}
                     </td>
                   ))}
                 </tr>
@@ -124,7 +124,10 @@ column
               className="rounded-md border-gray-300 py-1 pl-2 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             >
               {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
+                <option
+                  key={size}
+                  value={size}
+                >
                   {size}
                 </option>
               ))}

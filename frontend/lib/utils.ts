@@ -27,12 +27,9 @@ export const handleGraphQLError = (
   fallbackMessage = "An unexpected error occurred",
 ) => {
   if (!error) {
-    toast.error(
-title,
-{
+    toast.error(title, {
       description: fallbackMessage,
-    }
-)
+    })
     return
   }
 
@@ -42,33 +39,24 @@ title,
       ? (error as ErrorOutput).message.join(", ")
       : (error as { message: string }).message
 
-    toast.error(
-title,
-{
+    toast.error(title, {
       description: message,
-    }
-)
+    })
     return
   }
 
   // Handle Error instance
   if (error instanceof Error) {
-    toast.error(
-title,
-{
+    toast.error(title, {
       description: error.message,
-    }
-)
+    })
     return
   }
 
   // Fallback for unknown error types
-  toast.error(
-title,
-{
+  toast.error(title, {
     description: fallbackMessage,
-  }
-)
+  })
 }
 
 export function classNames(...classes: string[]) {
@@ -76,22 +64,16 @@ export function classNames(...classes: string[]) {
 }
 
 export const formatAmount = (amount: number) => {
-  return new Intl.NumberFormat(
-"en-US",
-{
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "VND",
-  }
-).format(amount)
+  }).format(amount)
 }
 
 export const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString(
-"en-US",
-{
+  return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
-  }
-)
+  })
 }

@@ -10,9 +10,7 @@ import {
 } from "@headlessui/react"
 import { ChevronDownIcon } from "@heroicons/react/24/outline"
 
-import {
- Fragment, useCallback, useEffect, useState 
-} from "react"
+import { Fragment, useCallback, useEffect, useState } from "react"
 
 import { classNames } from "@/lib/utils"
 
@@ -50,26 +48,11 @@ export default function FormCombobox({
   className = "",
   loadMore,
 }: FormComboboxProps) {
-  const [
-query,
-setQuery
-] = useState("")
-  const [
-options,
-setOptions
-] = useState(initialOptions)
-  const [
-page,
-setPage
-] = useState(1)
-  const [
-hasMore,
-setHasMore
-] = useState(true)
-  const [
-loading,
-setLoading
-] = useState(false)
+  const [query, setQuery] = useState("")
+  const [options, setOptions] = useState(initialOptions)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const inputClasses = classNames(
     "mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
@@ -79,28 +62,21 @@ setLoading
     disabled ? "bg-gray-50 text-gray-500" : "",
     className,
   )
-  useEffect(
-() => {
+  useEffect(() => {
     if (loadMore) {
       setLoading(true)
       loadMore(page).then((newOptions) => {
         setOptions((prev) => {
-          const filteredOptions = newOptions.filter((option) => !prev.some((o) => o.value === option.value),)
-          return [
-...prev,
-...filteredOptions
-]
+          const filteredOptions = newOptions.filter(
+            (option) => !prev.some((o) => o.value === option.value),
+          )
+          return [...prev, ...filteredOptions]
         })
         setHasMore(newOptions.length > 0)
         setLoading(false)
       })
     }
-  },
-[
-page,
-loadMore
-]
-)
+  }, [page, loadMore])
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLElement>) => {
       if (!loadMore) return
@@ -114,30 +90,33 @@ loadMore
         setPage((prev) => prev + 1)
       }
     },
-    [
-hasMore,
-loading,
-loadMore
-],
+    [hasMore, loading, loadMore],
   )
 
   const filteredOptions =
     query === ""
       ? options
       : options.filter((option) =>
-          option.label.toLowerCase().includes(query.toLowerCase()),)
+          option.label.toLowerCase().includes(query.toLowerCase()),
+        )
 
   const renderHelperText = () => {
     if (error) {
       return (
-        <p className="mt-2 text-sm text-red-600" id={`${id}-error`}>
+        <p
+          className="mt-2 text-sm text-red-600"
+          id={`${id}-error`}
+        >
           {error}
         </p>
       )
     }
     if (helperText) {
       return (
-        <p className="mt-2 text-sm text-gray-500" id={`${id}-description`}>
+        <p
+          className="mt-2 text-sm text-gray-500"
+          id={`${id}-description`}
+        >
           {helperText}
         </p>
       )

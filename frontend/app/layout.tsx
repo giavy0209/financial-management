@@ -9,7 +9,7 @@ import "./globals.css"
 import { Providers } from "./providers"
 
 const inter = Inter({
- subsets: ["latin"] 
+  subsets: ["latin"],
 })
 
 export const metadata = {
@@ -24,11 +24,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} className={inter.className}>
+      <body
+        suppressHydrationWarning={true}
+        className={inter.className}
+      >
         <Providers>
           <InitializeUser />
           <MainLayout>{children}</MainLayout>
-          <Toaster richColors position="top-right" />
+          <Toaster
+            richColors
+            position="top-right"
+          />
         </Providers>
       </body>
     </html>

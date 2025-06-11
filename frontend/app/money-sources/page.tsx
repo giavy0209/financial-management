@@ -21,21 +21,27 @@ import MoneySourceTable from "./components/MoneySourceTable"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export default function MoneySourcesPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const {
- newMoneySource, loading 
-} = useAppSelector((state) => state.moneySource,)
+  const { newMoneySource, loading } = useAppSelector(
+    (state) => state.moneySource,
+  )
 
   const handleCreateMoneySource = async () => {
     if (!newMoneySource) return
     await dispatch(createMoneySource(newMoneySource)).unwrap()
-    dispatch(getMoneySources({
- pagination: {
- page: 1,
-pageSize: 10 
-} 
-}))
+    dispatch(
+      getMoneySources({
+        pagination: {
+          page: 1,
+          pageSize: 10,
+        },
+      }),
+    )
   }
 
   return (
@@ -49,10 +55,14 @@ pageSize: 10
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => dispatch(setNewMoneySource({
- name: "",
-value: 0 
-}))}
+            onClick={() =>
+              dispatch(
+                setNewMoneySource({
+                  name: "",
+                  value: 0,
+                }),
+              )
+            }
           >
             Add Money Source
           </Button>
@@ -75,10 +85,12 @@ value: 0
           label="Name"
           value={newMoneySource?.name}
           onChange={(value) =>
-            dispatch(setNewMoneySource({
- ...newMoneySource,
-name: value.toString() 
-}),)
+            dispatch(
+              setNewMoneySource({
+                ...newMoneySource,
+                name: value.toString(),
+              }),
+            )
           }
           required
         />
@@ -88,10 +100,12 @@ name: value.toString()
           label="Value"
           value={newMoneySource?.value}
           onChange={(value) =>
-            dispatch(setNewMoneySource({
- ...newMoneySource,
-value: Number(value) 
-}),)
+            dispatch(
+              setNewMoneySource({
+                ...newMoneySource,
+                value: Number(value),
+              }),
+            )
           }
           required
         />

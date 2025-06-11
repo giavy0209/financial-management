@@ -17,9 +17,7 @@ import { toast } from "sonner"
 import { useState } from "react"
 
 import Link from "next/link"
-import {
- usePathname, useRouter 
-} from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import { classNames } from "@/lib/utils"
 import { logout } from "@/store/features/user/userSlice"
@@ -31,52 +29,53 @@ import ConfirmModal from "./ConfirmModal"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 const navigation = [
   {
- name: "Dashboard",
-href: "/",
-icon: HomeIcon 
-},
+    name: "Dashboard",
+    href: "/",
+    icon: HomeIcon,
+  },
   {
- name: "Transactions",
-href: "/transactions",
-icon: BanknotesIcon 
-},
+    name: "Transactions",
+    href: "/transactions",
+    icon: BanknotesIcon,
+  },
   {
- name: "Categories",
-href: "/categories",
-icon: TagIcon 
-},
+    name: "Categories",
+    href: "/categories",
+    icon: TagIcon,
+  },
   {
- name: "Money Sources",
-href: "/money-sources",
-icon: WalletIcon 
-},
+    name: "Money Sources",
+    href: "/money-sources",
+    icon: WalletIcon,
+  },
   {
- name: "Budget",
-href: "/budget",
-icon: ChartBarIcon 
-},
+    name: "Budget",
+    href: "/budget",
+    icon: ChartBarIcon,
+  },
   {
- name: "Reports",
-href: "/reports",
-icon: DocumentChartBarIcon 
-},
+    name: "Reports",
+    href: "/reports",
+    icon: DocumentChartBarIcon,
+  },
   {
- name: "Settings",
-href: "/settings",
-icon: Cog6ToothIcon 
-},
+    name: "Settings",
+    href: "/settings",
+    icon: Cog6ToothIcon,
+  },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  const [
-showLogoutConfirm,
-setShowLogoutConfirm
-] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const handleLogout = () => {
     try {
@@ -84,10 +83,7 @@ setShowLogoutConfirm
       toast.success("Logged out successfully")
       router.push("/login")
     } catch (error: unknown) {
-      console.error(
-"Logout error:",
-error
-)
+      console.error("Logout error:", error)
       toast.error("Failed to logout. Please try again.")
     }
   }
@@ -104,9 +100,15 @@ error
               </h1>
             </div>
             <nav className="flex flex-1 flex-col">
-              <ul role="list" className="flex flex-1 flex-col gap-y-7">
+              <ul
+                role="list"
+                className="flex flex-1 flex-col gap-y-7"
+              >
                 <li>
-                  <ul role="list" className="-mx-2 space-y-1">
+                  <ul
+                    role="list"
+                    className="-mx-2 space-y-1"
+                  >
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <Link

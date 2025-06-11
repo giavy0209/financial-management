@@ -18,7 +18,7 @@ const eslintConfig = [
   {
     rules: {
       "max-len": [
-        "error",
+        "warning",
         {
           code: 80,
           tabWidth: 2,

@@ -8,32 +8,22 @@ import { useState } from "react"
 
 import { useRouter } from "next/navigation"
 
-import {
- login, signup 
-} from "@/store/features/user/userSlice"
+import { login, signup } from "@/store/features/user/userSlice"
 import { AppDispatch } from "@/store/store"
 
 /** @format */
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export default function AuthForm() {
-  const [
-isLogin,
-setIsLogin
-] = useState(true)
-  const [
-email,
-setEmail
-] = useState("")
-  const [
-password,
-setPassword
-] = useState("")
-  const [
-username,
-setUsername
-] = useState("")
+  const [isLogin, setIsLogin] = useState(true)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("")
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
 
@@ -41,19 +31,23 @@ setUsername
     e.preventDefault()
 
     if (isLogin) {
-      const result = await dispatch(login({
- email,
-password 
-}))
+      const result = await dispatch(
+        login({
+          email,
+          password,
+        }),
+      )
       if (login.fulfilled.match(result)) {
         router.push("/")
       }
     } else {
-      const result = await dispatch(signup({
- email,
-password,
-name: username 
-}))
+      const result = await dispatch(
+        signup({
+          email,
+          password,
+          name: username,
+        }),
+      )
       if (signup.fulfilled.match(result)) {
         setIsLogin(true)
         setEmail("")
@@ -71,11 +65,17 @@ name: username
             {isLogin ? "Sign in to your account" : "Create a new account"}
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form
+          className="mt-8 space-y-6"
+          onSubmit={handleSubmit}
+        >
           <div className="rounded-md shadow-sm space-y-4">
             {!isLogin && (
               <div>
-                <label htmlFor="username" className="sr-only">
+                <label
+                  htmlFor="username"
+                  className="sr-only"
+                >
                   Username
                 </label>
                 <input
@@ -91,7 +91,10 @@ name: username
               </div>
             )}
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label
+                htmlFor="email-address"
+                className="sr-only"
+              >
                 Email address
               </label>
               <input
@@ -107,7 +110,10 @@ name: username
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label
+                htmlFor="password"
+                className="sr-only"
+              >
                 Password
               </label>
               <input

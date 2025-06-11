@@ -9,6 +9,10 @@ import CreateCategoryButton from "./components/CreateCategoryButton"
 
 /** @format */
 
+/** @format */
+
+/** @format */
+
 export default function CategoriesPage() {
   return (
     <div>
