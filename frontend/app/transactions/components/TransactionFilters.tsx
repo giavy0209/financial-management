@@ -1,5 +1,3 @@
-/** @format */
-
 "use client"
 
 import {
@@ -13,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 import { Fragment, memo } from "react"
 
+import { FormInput } from "@/app/components/form"
 import {
   clearFilters,
   setFilters,
@@ -20,18 +19,12 @@ import {
 import { AppDispatch, RootState } from "@/store/store"
 
 import CategorySelect from "./CategorySelect"
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
+import MoneySourceSelect from "./MoneySourceSelect"
 
 type FilterValue = number | string
 type FilterKey =
   | "categoryId"
+  | "moneySourceId"
   | "fromAmount"
   | "toAmount"
   | "fromDate"
@@ -101,14 +94,11 @@ const TransactionFilters = memo(() => {
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <PopoverPanel className="absolute right-0 z-10 mt-3 w-screen max-w-sm transform px-4 sm:px-0">
-          <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-            <div className="relative bg-white p-6">
+        <PopoverPanel className="absolute right-0 z-10 mt-3 w-screen max-w-sm h-[400px] transform px-4 sm:px-0">
+          <div className="overflow-hidden rounded-lg h-full shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="relative h-full bg-white p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
-                  </label>
                   <CategorySelect
                     value={filters.categoryId || 0}
                     onChange={(value) =>
@@ -116,73 +106,52 @@ const TransactionFilters = memo(() => {
                     }
                   />
                 </div>
-
+                <MoneySourceSelect
+                  value={filters.moneySourceId || 0}
+                  onChange={(value) =>
+                    handleFilterChange("moneySourceId", value)
+                  }
+                />
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      From Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={filters.fromAmount || ""}
-                      onChange={(e) =>
-                        handleFilterChange(
-                          "fromAmount",
-                          e.target.value ? parseFloat(e.target.value) : "",
-                        )
-                      }
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      placeholder="Min"
-                    />
-                  </div>
+                  <FormInput
+                    label="From Amount"
+                    type="number"
+                    value={filters.fromAmount || ""}
+                    onChange={(value) =>
+                      handleFilterChange("fromAmount", value as number)
+                    }
+                    placeholder="Min"
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      To Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={filters.toAmount || ""}
-                      onChange={(e) =>
-                        handleFilterChange(
-                          "toAmount",
-                          e.target.value ? parseFloat(e.target.value) : "",
-                        )
-                      }
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      placeholder="Max"
-                    />
-                  </div>
+                  <FormInput
+                    label="To Amount"
+                    type="number"
+                    value={filters.toAmount || ""}
+                    onChange={(value) =>
+                      handleFilterChange("toAmount", value as number)
+                    }
+                    placeholder="Max"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      From Date
-                    </label>
-                    <input
-                      type="date"
-                      value={filters.fromDate || ""}
-                      onChange={(e) =>
-                        handleFilterChange("fromDate", e.target.value)
-                      }
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
+                  <FormInput
+                    label="From Date"
+                    type="date"
+                    value={filters.fromDate || ""}
+                    onChange={(value) =>
+                      handleFilterChange("fromDate", value as string)
+                    }
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      To Date
-                    </label>
-                    <input
-                      type="date"
-                      value={filters.toDate || ""}
-                      onChange={(e) =>
-                        handleFilterChange("toDate", e.target.value)
-                      }
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
+                  <FormInput
+                    label="To Date"
+                    type="date"
+                    value={filters.toDate || ""}
+                    onChange={(value) =>
+                      handleFilterChange("toDate", value as string)
+                    }
+                  />
                 </div>
               </div>
 

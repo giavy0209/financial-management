@@ -26,31 +26,8 @@ import {
 import { useAppSelector } from "@/store/hooks"
 import { AppDispatch } from "@/store/store"
 
+import TransactionFilters from "./components/TransactionFilters"
 import TransactionTable from "./components/TransactionTable"
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
 
 /** @format */
 
@@ -147,6 +124,7 @@ export default function TransactionsPage() {
             A list of all transactions in your account.
           </p>
         </div>
+        <TransactionFilters />
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
             onClick={() =>

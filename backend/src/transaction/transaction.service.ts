@@ -29,6 +29,7 @@ export class TransactionService {
       where,
       skip: pagination.skip,
       take: pagination.take,
+      orderBy: { createdAt: 'desc' },
       select: fieldMap,
     });
 
