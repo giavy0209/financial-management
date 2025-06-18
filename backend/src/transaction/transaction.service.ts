@@ -13,12 +13,20 @@ export class TransactionService {
 
   async getTransactions(
     userId: number,
-    { categoryId, fromAmount, toAmount, fromDate, toDate }: GetTransactionInput,
+    {
+      categoryId,
+      moneySourceId,
+      fromAmount,
+      toAmount,
+      fromDate,
+      toDate,
+    }: GetTransactionInput,
     pagination: Pagination,
     fieldMap: FieldMap,
   ) {
     const where: Prisma.TransactionWhereInput = { userId };
     if (categoryId) where.categoryId = categoryId;
+    if (moneySourceId) where.moneySourceId = moneySourceId;
     const whereAmount = generateQueryRange(fromAmount, toAmount);
     const whereDate = generateQueryRange(fromDate, toDate);
 
