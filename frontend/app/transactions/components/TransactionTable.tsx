@@ -130,7 +130,7 @@ const TransactionTable = memo(() => {
           pageSizeOptions: PAGE_SIZES,
         }}
       />
-      <div className="text-sm text-gray-900">
+      <div className="text-sm text-gray-900 p-4 bg-white">
         Total: {formatAmount(summary)}
       </div>
     </div>

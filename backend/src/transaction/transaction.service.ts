@@ -179,7 +179,7 @@ export class TransactionService {
     });
 
     return {
-      sum: summary._sum.amount,
+      sum: summary._sum.amount || 0,
     };
   }
 }
