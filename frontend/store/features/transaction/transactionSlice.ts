@@ -6,6 +6,8 @@ import { ERROR_FRAGMENT, PAGINATION_FRAGMENT } from "@/graphql/fragments"
 import {
   CreateTransactionMutation,
   CreateTransactionMutationVariables,
+  GetSummaryQuery,
+  GetSummaryQueryVariables,
   GetTransactionsQuery,
   GetTransactionsQueryVariables,
   UpdateTransactionMutation,
@@ -103,8 +105,27 @@ const UPDATE_TRANSACTION = gql`
   }
 `
 
+const GET_SUMMARY = gql`
+  ${ERROR_FRAGMENT}
+  query GetSummary($filter: GetTransactionInput!) {
+    summary(filter: $filter) {
+      ... on ErrorOutput {
+        ...ErrorFields
+      }
+      ... on SummarySingle {
+        data {
+          sum
+        }
+        message
+        statusCode
+      }
+    }
+  }
+`
+
 const initialState: TransactionState = {
   transactions: [],
+  summary: 0,
   filters: {},
   pagination: {
     page: 1,
@@ -180,6 +201,23 @@ export const updateTransaction = createAsyncThunk<
   }
 })
 
+export const getSummary = createAsyncThunk<
+  GetSummaryQuery["summary"],
+  GetSummaryQueryVariables
+>("transaction/getSummary", async (variables, { rejectWithValue }) => {
+  const { data } = await client.query<
+    GetSummaryQuery,
+    GetSummaryQueryVariables
+  >({
+    query: GET_SUMMARY,
+    variables,
+  })
+  if (!data) return rejectWithValue(data)
+  if (data.summary.__typename === "SummarySingle") {
+    return data.summary
+  }
+  return rejectWithValue(data.summary)
+})
 const transactionSlice = createSlice({
   name: "transaction",
   initialState,
@@ -250,6 +288,14 @@ const transactionSlice = createSlice({
         state.editingTransaction = null
       })
       .addCase(updateTransaction.rejected, (state, action) => {
+        handleGraphQLError(action.payload)
+      })
+      .addCase(getSummary.fulfilled, (state, action) => {
+        if (action.payload.__typename === "SummarySingle") {
+          state.summary = action.payload.data.sum
+        }
+      })
+      .addCase(getSummary.rejected, (state, action) => {
         handleGraphQLError(action.payload)
       })
   },

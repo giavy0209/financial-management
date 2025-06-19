@@ -18,6 +18,7 @@ export interface EditTransaction {
 }
 export interface TransactionState {
   transactions: TransactionFieldsFragment[]
+  summary: number
   pagination: {
     page: number
     pageSize: number

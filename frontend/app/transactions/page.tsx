@@ -18,6 +18,7 @@ import {
 import { getMoneySources } from "@/store/features/moneySource/moneySourceSlice"
 import {
   createTransaction,
+  getSummary,
   getTransactions,
   setEditingTransaction,
   setNewTransaction,
@@ -28,6 +29,14 @@ import { AppDispatch } from "@/store/store"
 
 import TransactionFilters from "./components/TransactionFilters"
 import TransactionTable from "./components/TransactionTable"
+
+/** @format */
+
+/** @format */
+
+/** @format */
+
+/** @format */
 
 /** @format */
 
@@ -113,6 +122,7 @@ export default function TransactionsPage() {
         },
       }),
     )
+    dispatch(getSummary({ filter: {} }))
   }
 
   return (
@@ -125,7 +135,7 @@ export default function TransactionsPage() {
           </p>
         </div>
         <TransactionFilters />
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div className="ml-2 sm:flex-none">
           <Button
             onClick={() =>
               dispatch(

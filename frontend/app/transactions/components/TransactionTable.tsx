@@ -1,5 +1,3 @@
-/** @format */
-
 "use client"
 
 import { useDispatch, useSelector } from "react-redux"
@@ -10,20 +8,13 @@ import Table, { Column } from "@/app/components/Table"
 import { TransactionFieldsFragment } from "@/graphql/queries"
 import { formatAmount, formatDate } from "@/lib/utils"
 import {
+  getSummary,
   getTransactions,
   setEditingTransaction,
   setPage,
   setPageSize,
 } from "@/store/features/transaction/transactionSlice"
 import { AppDispatch, RootState } from "@/store/store"
-
-/** @format */
-
-/** @format */
-
-/** @format */
-
-/** @format */
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -34,6 +25,7 @@ const TransactionTable = memo(() => {
     pagination: { page, pageSize, total },
     loading,
     filters,
+    summary,
   } = useSelector((state: RootState) => state.transaction)
 
   useEffect(() => {
@@ -47,6 +39,10 @@ const TransactionTable = memo(() => {
       }),
     )
   }, [dispatch, page, pageSize, filters])
+
+  useEffect(() => {
+    dispatch(getSummary({ filter: filters }))
+  }, [dispatch, filters])
 
   const onEdit = (transaction: TransactionFieldsFragment) => {
     dispatch(
@@ -134,6 +130,9 @@ const TransactionTable = memo(() => {
           pageSizeOptions: PAGE_SIZES,
         }}
       />
+      <div className="text-sm text-gray-900">
+        Total: {formatAmount(summary)}
+      </div>
     </div>
   )
 })

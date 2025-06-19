@@ -159,4 +159,27 @@ export class TransactionService {
 
     return true;
   }
+
+  async getSummary(userId: number, filters: GetTransactionInput) {
+    const where: Prisma.TransactionWhereInput = { userId };
+    if (filters.categoryId) where.categoryId = filters.categoryId;
+    if (filters.moneySourceId) where.moneySourceId = filters.moneySourceId;
+    const whereAmount = generateQueryRange(
+      filters.fromAmount,
+      filters.toAmount,
+    );
+    const whereDate = generateQueryRange(filters.fromDate, filters.toDate);
+
+    if (whereAmount) where.amount = whereAmount;
+    if (whereDate) where.createdAt = whereDate;
+
+    const summary = await this.prisma.transaction.aggregate({
+      where,
+      _sum: { amount: true },
+    });
+
+    return {
+      sum: summary._sum.amount,
+    };
+  }
 }

@@ -3,12 +3,13 @@ import { TransactionService } from './transaction.service';
 import {
   QueryList,
   AppMutation,
+  QuerySingle,
 } from 'src/common/decorators/resolvers.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { GetTransactionInput } from './input/get-transaction.input';
 import { CreateTransactionInput } from './input/create-transaction.input';
 import { UpdateTransactionInput } from './input/update-transaction.input';
-import { Transaction } from './transaction.type';
+import { Summary, Transaction } from './transaction.type';
 import { Input } from 'src/common/decorators/input.decorator';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { FieldMap } from 'src/common/decorators/field-map.decorator';
@@ -74,6 +75,19 @@ export class TransactionResolver {
       data: transaction,
       message: 'Transaction updated successfully',
       statusCode: 200,
+    };
+  }
+
+  @QuerySingle(Summary)
+  async summary(
+    @CurrentUser() user: JwtPayload['user'],
+    @Filters() filters: GetTransactionInput,
+  ) {
+    const summary = await this.transactionService.getSummary(user.id, filters);
+
+    return {
+      data: summary,
+      message: 'Summary fetched successfully',
     };
   }
 }

@@ -206,6 +206,7 @@ type Query {
   categories(pagination: PaginationInput): ResultUnionCategoryList!
   me: ResultUnionUserSingle!
   moneySources(pagination: PaginationInput): ResultUnionMoneySourceList!
+  summary(filter: GetTransactionInput): ResultUnionSummarySingle!
   transactions(filter: GetTransactionInput, pagination: PaginationInput): ResultUnionTransactionList!
 }
 
@@ -222,6 +223,8 @@ union ResultUnionMoneySourceList = ErrorOutput | MoneySourceList
 union ResultUnionMoneySourceMutation = ErrorOutput | MoneySourceMutation
 
 union ResultUnionSignupMutation = ErrorOutput | SignupMutation
+
+union ResultUnionSummarySingle = ErrorOutput | SummarySingle
 
 union ResultUnionTransactionList = ErrorOutput | TransactionList
 
@@ -241,6 +244,16 @@ input SignupInput {
 
 type SignupMutation implements BaseResponse {
   data: Signup!
+  message: [String!]!
+  statusCode: HttpCode!
+}
+
+type Summary {
+  sum: Float!
+}
+
+type SummarySingle implements BaseResponse {
+  data: Summary!
   message: [String!]!
   statusCode: HttpCode!
 }

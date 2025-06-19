@@ -22,3 +22,9 @@ export class Transaction {
   @Field(() => Date)
   createdAt: Date;
 }
+
+@ObjectType()
+export class Summary {
+  @Field(() => Float)
+  sum: number;
+}
