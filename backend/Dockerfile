@@ -7,11 +7,12 @@ RUN apk add --no-cache openssl
 COPY package*.json ./
 
 RUN npm install
-
+RUN npm run build
 COPY . .
 
 EXPOSE 3000
 
-ENV DATABASE_URL="postgres://vypham:vyPham%40%40%40%40%40123@postgre:5432/xteen"
-
-CMD ["npm", "start"]
+ENV DATABASE_URL="postgres://vypham:vyPham%40%40%40%40%40123@postgre:5432/finance"
+RUN npm run prisma:generate
+RUN npm run prisma:migrate
+CMD ["npm", "run", "start:prod"]
