@@ -10,6 +10,7 @@ RUN npm install
 RUN npm run build
 ENV DATABASE_URL="postgres://vypham:vyPham%40%40%40%40%40123@postgre:5432/finance"
 RUN npm run prisma:generate
+COPY . .
 
 EXPOSE 3000
 
