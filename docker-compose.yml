@@ -1,0 +1,22 @@
+# @format
+
+version: "3.8"
+
+services:
+  xteen-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - DATABASE_URL=postgres://vypham:vyPham%40%40%40%40%40123@postgre:5432/xteen
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - my_shared_network
+    restart: unless-stopped
+networks:
+  my_shared_network:
+    external: true
