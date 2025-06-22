@@ -10,7 +10,7 @@
     "build": "nest build",
     "start:dev": "npm run prisma:generate && nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "npm run prisma:generate && npm run prisma:migrate && node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:reset": "prisma migrate reset",
     "prisma:migrate": "prisma migrate dev",
