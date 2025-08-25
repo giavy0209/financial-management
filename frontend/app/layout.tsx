@@ -2,6 +2,7 @@
 import { Toaster } from "sonner"
 
 import { Inter } from "next/font/google"
+import Script from "next/script"
 
 import InitializeUser from "./components/InitializeUser"
 import MainLayout from "./components/MainLayout"
@@ -24,6 +25,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-TJ71FEXH3Z"
+        ></Script>
+        <Script>
+          {`
+    window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TJ71FEXH3Z');
+    `}
+        </Script>
+      </head>
       <body
         suppressHydrationWarning={true}
         className={inter.className}
